@@ -1,0 +1,103 @@
+The node registered is:ubuntu
+The current one is:0;
+OK, I am 0;, and strlength is: 2
+The new one is:1;ubuntu
+The current free resource is:1;ubuntu
+OK, I am 1;ubuntu, and strlength is: 8
+It is:ubuntu
+I am inserting a job record:1426893156
+Now, the key is:1426893156
+The return value is:1
+The job id is:1426893156
+The job nodelist info is:1;ubuntu
+The node list now is:ubuntu
+The node list allocated is:ubuntu
+The network is:(null)
+The step node list is:ubuntu
+The node count is:1
+Number of task is:1
+CPUS per task is:2
+Task dist is:1
+Plane size is:65534
+OK, I am going to de slurm cred sign!
+OK, I am succeed!
+The job resource record is:1;ubuntu
+OK, I am 1;ubuntu, and strlength is: 8
+It is:ubuntu
+The current one is:0;
+OK, I am 0;, and strlength is: 2
+The new one is:1;ubuntu
+The current free resource is:1;ubuntu
+OK, I am 1;ubuntu, and strlength is: 8
+It is:ubuntu
+I am inserting a job record:871993297
+Now, the key is:871993297
+The return value is:1
+The job id is:871993297
+The job nodelist info is:1;ubuntu
+The node list now is:ubuntu
+The node list allocated is:ubuntu
+The network is:(null)
+The step node list is:ubuntu
+The node count is:1
+Number of task is:1
+CPUS per task is:2
+Task dist is:1
+Plane size is:65534
+OK, I am going to de slurm cred sign!
+OK, I am succeed!
+The job resource record is:1;ubuntu
+OK, I am 1;ubuntu, and strlength is: 8
+It is:ubuntu
+The current one is:0;
+OK, I am 0;, and strlength is: 2
+The new one is:1;ubuntu
+The current free resource is:1;ubuntu
+OK, I am 1;ubuntu, and strlength is: 8
+It is:ubuntu
+I am inserting a job record:871993297
+The return value is:1
+The job id is:871993297
+The job nodelist info is:1;ubuntu
+The node list now is:ubuntu
+The node list allocated is:ubuntu
+The network is:(null)
+The step node list is:ubuntu
+The node count is:1
+Number of task is:1
+CPUS per task is:2
+Task dist is:1
+Plane size is:65534
+OK, I am going to de slurm cred sign!
+OK, I am succeed!
+The job resource record is:1;ubuntu
+OK, I am 1;ubuntu, and strlength is: 8
+It is:ubuntu
+The current one is:0;
+OK, I am 0;, and strlength is: 2
+The new one is:1;ubuntu
+The current free resource is:1;ubuntu
+OK, I am 1;ubuntu, and strlength is: 8
+It is:ubuntu
+I am inserting a job record:317093438
+Now, the key is:317093438
+The return value is:1
+The job id is:317093438
+The job nodelist info is:1;ubuntu
+The node list now is:ubuntu
+The node list allocated is:ubuntu
+The network is:(null)
+The step node list is:ubuntu
+The node count is:1
+Number of task is:1
+CPUS per task is:2
+Task dist is:1
+Plane size is:65534
+OK, I am going to de slurm cred sign!
+OK, I am succeed!
+The job resource record is:1;ubuntu
+OK, I am 1;ubuntu, and strlength is: 8
+It is:ubuntu
+The current one is:0;
+OK, I am 0;, and strlength is: 2
+The new one is:1;ubuntu

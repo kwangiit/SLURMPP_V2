@@ -1,0 +1,47 @@
+<!--#include virtual="header.txt"-->
+
+<h1>CALL  FOR  ABSTRACTS</h1>
+<p>Slurm User Group Meeting 2014<br>
+23-24 September 2014<br>
+Lugano, Switzerland</p>
+
+<p>You are invited to submit an abstract of a tutorial, technical presentation
+or site report to be given at the Slurm User Group Meeting 2014. This event is
+sponsored and organized by
+The <a href="http://cscs.ch/">Swiss National Supercomputing Centre</a> and
+will be held in Lugano, Switzerland on 23-24 September 2014.</p>
+
+<p>This international event is opened to everyone who wants to:
+<ul>
+<li>Learn more about <a href="http://slurm.schedmd.com/">
+Slurm</a>, a highly scalable Resource Manager and Job Scheduler</li>
+<li>Share their knowledge and experience with other users and administrators</li>
+<li>Get detailed information about the latest features and developments</li>
+<li>Share requirements and discuss future developments</li>
+</ul></p>
+
+<p>Everyone who wants to present their own usage, developments, site report,
+or tutorial about Slurm is invited to send an abstract to
+<a href="mailto:sugc@schedmd.com">sugc@schedmd.com</a>.</p>
+
+<p><b>Important Dates:</b><br>
+16 June 2014: Abstracts due<br>
+27 June 2014: Notification of acceptance<br>
+23-24 September 2014: Slurm User Group Meeting 2014<br>
+</p>
+
+<p><b>Program Committee:</b><br>
+Yiannis Georgiou (Bull)<br>
+Matthieu Hautreux (CEA)<br>
+Morris Jette (SchedMD)<br>
+Donald Lipari (LLNL, Lawrence Livermore National Laboratory)<br>
+Colin McMurtrie (CSCS, Swiss National Supercomputing Centre)<br>
+Stephen Trofinoff (CSCS, Swiss National Supercomputing Centre)</p>
+
+<!--
+<p><a href="slurm_ug_registration.html">Registration information</a></p>
+-->
+
+<p style="text-align:center;">Last modified 5 June 2014</p>
+
+<!--#include virtual="footer.txt"-->

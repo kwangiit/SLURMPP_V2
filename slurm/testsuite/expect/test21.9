@@ -1,0 +1,568 @@
+#!/usr/bin/expect
+############################################################################
+# Purpose: Test of SLURM functionality
+#          sacctmgr modify multiple clusters
+#
+# Output:  "TEST: #.#" followed by "SUCCESS" if test was successful, OR
+#          "FAILURE: ..." otherwise with an explanation of the failure, OR
+#          anything else indicates a failure mode that must be investigated.
+############################################################################
+# Copyright (C) 2008-2010 Lawrence Livermore National Security.
+# Produced at Lawrence Livermore National Laboratory (cf, DISCLAIMER).
+# Written by Joseph Donaghy <donaghy1@llnl.gov>
+# CODE-OCEC-09-009. All rights reserved.
+#
+# This file is part of SLURM, a resource management program.
+# For details, see <http://slurm.schedmd.com/>.
+# Please also read the included file: DISCLAIMER.
+#
+# SLURM is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
+#
+# SLURM is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along
+# with SLURM; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA.
+############################################################################
+source ./globals
+source ./globals_accounting
+
+set test_id     "21.9"
+set exit_code   0
+set amatches    0
+set mmatches    0
+set lmatches    0
+set dmatches    0
+set not_support 0
+set nam		Name
+set fs		Fairshare
+set gc		GrpCPUs
+set gj		GrpJobs
+set gm          GrpMemory
+set gs		GrpSubmitJobs
+set gn		GrpNodes
+set mm		MaxCPUMins
+set mc		MaxCPUs
+set mj		MaxJobs
+set ms		MaxSubmitJobs
+set mn		MaxNodes
+set mw		MaxWall
+set dqos        QOS
+set tc1		slurm_test-cluster-1
+set tc2		slurm_test-cluster-2
+set tc3		slurm_test-cluster-3
+set fs1		2500
+set fs2		1375
+set gc1		20
+set gj1		100
+set gm1         200
+set gs1		300
+set gn1		100
+set mc1		200
+set mm1		100000
+set mj1		500
+set ms1		400
+set mn1		200
+set mw1		01:00:00
+set dqos1       "test$test_id\_qos_1"
+set gc2		50
+set gj2		200
+set gm2         500
+set gs2		400
+set gn2		150
+set mc2		100
+set mm2		20000
+set mj2		600
+set ms2		700
+set mn2		300
+set mw2		12:00:00
+set dqos2       "test$test_id\_qos_2"
+
+set access_err  0
+
+print_header $test_id
+
+if { [test_account_storage] == 0 } {
+	send_user "\nWARNING: This test can't be run without a usable AccountStorageType\n"
+	exit 0
+}
+
+#
+# Verify if Administrator privileges
+#
+ if { [string compare [check_accounting_admin_level] "Administrator"] } {
+	send_user "\nWARNING: This test can't be run without being an Accounting administrator.\nUse sacctmgr mod user \$USER_NAME admin=admin.\n"
+	exit 0
+}
+
+
+#
+# Use sacctmgr to delete the test cluster
+#
+set nothing 0
+set matches 0
+
+set my_pid [spawn $sacctmgr -i delete cluster $tc1,$tc2,$tc3]
+
+expect {
+	-re "privilege to perform this action" {
+		set access_err 1
+		exp_continue
+	}
+	-re "(There was a problem|Unknown condition|Bad format on|Bad MaxWall|Unknown option)" {
+		send_user "FAILURE: there was a problem with the sacctmgr command\n"
+		incr exit_code 1
+	}
+	-re "Problem getting" {
+		send_user "FAILURE: there was a problem getting information from the database\n"
+		incr exit_code 1
+	}
+	-re "Problem adding" {
+		send_user "FAILURE: there was an unknown problem\n"
+		incr exit_code 1
+	}
+	-re "No associations" {
+		send_user "FAILURE: your command didn't return anything\n"
+		incr exit_code 1
+	}
+	-re "Deleting clusters" {
+		incr matches
+		exp_continue
+	}
+	-re " Nothing deleted" {
+		incr matches
+		set nothing 1
+		exp_continue
+	}
+	timeout {
+		send_user "\nFAILURE: sacctmgr delete not responding\n"
+		slow_kill $my_pid
+		incr exit_code 1
+	}
+	eof {
+		wait
+	}
+}
+if {$access_err != 0} {
+	return 1
+}
+if {$matches != 1} {
+	send_user "\nFAILURE: sacctmgr had a problem deleting cluster got $matches\n"
+	incr exit_code 1
+}
+if { !$nothing } {
+	if { ![check_acct_associations] } {
+		send_user "\nFAILURE:  Our associations don't line up\n"
+		incr exit_code 1
+	}
+}
+#
+# Delete vestigial QOSs
+#
+set dmatches 0
+spawn $sacctmgr -i delete qos $dqos1 $dqos2
+expect {
+	-re "Deleting QOS" {
+		incr dmatches
+		exp_continue
+	}
+	-re "Nothing deleted" {
+		incr dmatches
+		exp_continue
+	}
+	timeout {
+		send_user "\nFAILURE: sacctmgr delete not responding\n"
+		slow_kill $sadel_pid
+		set exit_code 1
+	}
+	eof {
+		wait
+	}
+}
+
+if {$dmatches != 1} {
+	send_user "\nFAILURE: sacctmgr had a problem deleting QOS got $dmatches\n"
+	set exit_code 1
+}
+
+#
+# Create tmp QOS
+#
+set qos_set 0
+spawn $sacctmgr -i add qos $dqos1 $dqos2
+expect {
+	-re "Adding QOS" {
+		set qos_set 1
+		exp_continue
+	}
+	timeout {
+		send_user "\nFAILURE: sacctmgr is not responding\n"
+		set exit_code 1
+	}
+	eof {
+		wait
+	}
+}
+if {$qos_set != 1} {
+	send_user "\nFAILURE QOS $dqos was not created\n"
+	set exit_code 1
+}
+
+
+#
+# Use sacctmgr to create a cluster
+#
+set sadd_pid [spawn $sacctmgr add cluster name=$tc1,$tc2,$tc3 fairshare=$fs1   \
+GrpCPUs=$gc1 GrpJobs=$gj1 GrpNodes=$gn1 GrpSubmitJobs=$gs1 MaxCPUs=$mc1 MaxCPUMins=$mm1 \
+MaxJobs=$mj1 MaxSubmitJobs=$ms1 MaxNodes=$mn1 MaxWall=$mw1 GrpMem=$gm1\
+DefaultQos=$dqos1 QosLevel=$dqos1]
+
+expect {
+	-re "privilege to preform this action" {
+		set access_err 1
+		exp_continue
+	}
+	-re "Adding Cluster" {
+		incr amatches
+		exp_continue
+	}
+	-re "$nam *= $tc1" {
+		incr amatches
+		exp_continue
+	}
+	-re "$nam *= $tc2" {
+		incr amatches
+		exp_continue
+	}
+	-re "$nam *= $tc3" {
+		incr amatches
+		exp_continue
+	}
+	-re "Default Limits" {
+		incr amatches
+		exp_continue
+	}
+	-re "$fs *= $fs1" {
+		incr amatches
+		exp_continue
+	}
+	-re "$gc *= $gc1" {
+		incr amatches
+		exp_continue
+	}
+	-re "$gj *= $gj1" {
+		incr amatches
+		exp_continue
+	}
+	-re "$gm *= $gm1" {
+		incr amatches
+		exp_continue
+	}
+	-re "$gn *= $gn1" {
+		incr amatches
+		exp_continue
+	}
+	-re "$gs *= $gs1" {
+		incr amatches
+		exp_continue
+	}
+	-re "$mm *= $mm1" {
+		incr amatches
+		exp_continue
+	}
+	-re "$mc *= $mc1" {
+		incr amatches
+		exp_continue
+	}
+	-re "$mj *= $mj1" {
+		incr amatches
+		exp_continue
+	}
+	-re "$mn *= $mn1" {
+		incr amatches
+		exp_continue
+	}
+	-re "$ms *= $ms1" {
+		incr amatches
+		exp_continue
+	}
+	-re "$mw *= $mw1" {
+		incr amatches
+		exp_continue
+	}
+	-re "$dqos *= $dqos1" {
+		incr amatches
+		exp_continue
+	}
+	-re "Would you like to commit changes\\\? \\\(You have 30 seconds to decide\\\)" {
+		incr amatches
+		exp_continue
+	}
+	-re "\\\(N\\\/y\\\):" {
+		incr amatches
+		send "Y"
+		exp_continue
+	}
+	timeout {
+		send_user "\nFAILURE: sacctmgr add not responding\n"
+		slow_kill $sadd_pid
+		set exit_code 1
+	}
+	eof {
+		wait
+	}
+}
+if {$access_err != 0} {
+	send_user "\nWARNING: not authorized to perform this test\n"
+	exit $exit_code
+}
+if {$amatches != 20} {
+	send_user "\nFAILURE:  sacctmgr had a problem adding clusters $amatches\n"
+	set exit_code 1
+}
+
+# Check Cluster 1
+check_assoc_limit 1 cluster $tc1 $fs1 "" $gc1 "" $gj1 $gn1 $gs1 "" $mc1 $mm1 $mj1 $ms1 $mn1 $mw1 $gm1 $dqos1
+
+# Check Cluster 2
+check_assoc_limit 1 cluster $tc2 $fs1 "" $gc1 "" $gj1 $gn1 $gs1 "" $mc1 $mm1 $mj1 $ms1 $mn1 $mw1 $gm1 $dqos1
+
+# Check Cluster 3
+check_assoc_limit 1 cluster $tc3 $fs1 "" $gc1 "" $gj1 $gn1 $gs1 "" $mc1 $mm1 $mj1 $ms1 $mn1 $mw1 $gm1 $dqos1
+
+
+if { ![check_acct_associations] } {
+	send_user "\nFAILURE:  Our associations don't line up\n"
+	set exit_code 1
+}
+
+#
+# Use sacctmgr to modify one cluster
+#
+set smod_pid [spawn $sacctmgr modify cluster set fairshare=$fs2  \
+GrpCPUs=$gc2 GrpJobs=$gj2 GrpNodes=$gn2 GrpSubmitJobs=$gs2 MaxCPUs=$mc2 \
+MaxCPUMins=$mm2 MaxJobs=$mj2 MaxSubmitJobs=$ms2 MaxNodes=$mn2 MaxWall=$mw2 \
+$fs=$fs2 GrpMem=$gm2 DefaultQos=$dqos2 QosLevel=$dqos2 \
+where name=$tc1,$tc2,$tc3]
+expect {
+	-re "Setting" {
+		incr mmatches
+		exp_continue
+	}
+	-re "Default Limits" {
+		incr mmatches
+		exp_continue
+	}
+	-re "$fs *= $fs2" {
+		incr mmatches
+		exp_continue
+	}
+	-re "$gc *= $gc2" {
+		incr mmatches
+		exp_continue
+	}
+	-re "$gj *= $gj2" {
+		incr mmatches
+		exp_continue
+	}
+	-re "$gm *= $gm2" {
+		incr mmatches
+		exp_continue
+	}
+	-re "$gn *= $gn2" {
+		incr mmatches
+		exp_continue
+	}
+	-re "$gs *= $gs2" {
+		incr mmatches
+		exp_continue
+	}
+	-re "$mm *= $mm2" {
+		incr mmatches
+		exp_continue
+	}
+	-re "$mc *= $mc2" {
+		incr mmatches
+		exp_continue
+	}
+	-re "$mj *= $mj2" {
+		incr mmatches
+		exp_continue
+	}
+	-re "$mn *= $mn2" {
+		incr mmatches
+		exp_continue
+	}
+	-re "$ms *= $ms2" {
+		incr mmatches
+		exp_continue
+	}
+	-re "$mw *= $mw2" {
+		incr mmatches
+		exp_continue
+	}
+	-re "$dqos *= $dqos2" {
+		incr mmatches
+		exp_continue
+	}
+	-re "Would you like to commit changes\\\? \\\(You have 30 seconds to decide\\\)" {
+		incr mmatches
+		exp_continue
+	}
+	-re "\\\(N\\\/y\\\):" {
+		incr mmatches
+		send "Y"
+		exp_continue
+	}
+	timeout {
+		send_user "\nFAILURE: sacctmgr modify not responding\n"
+		slow_kill $smod_pid
+		set exit_code 1
+	}
+	eof {
+		wait
+	}
+}
+
+if {$mmatches != 17} {
+	send_user "\nFAILURE:  sacctmgr had a problem modifying clusters\n"
+	set exit_code 1
+}
+
+# Check Cluster 1
+check_assoc_limit 1 cluster $tc2 $fs2 "" $gc2 "" $gj2 $gn2 $gs2 "" $mc2 $mm2 $mj2 $ms2 $mn2 $mw2 $gm2 $dqos2
+
+# Check Cluster 2
+check_assoc_limit 1 cluster $tc2 $fs2 "" $gc2 "" $gj2 $gn2 $gs2 "" $mc2 $mm2 $mj2 $ms2 $mn2 $mw2 $gm2 $dqos2
+
+# Check Cluster 3
+check_assoc_limit 1 cluster $tc2 $fs2 "" $gc2 "" $gj2 $gn2 $gs2 "" $mc2 $mm2 $mj2 $ms2 $mn2 $mw2 $gm2 $dqos2
+
+if { ![check_acct_associations] } {
+	send_user "\nFAILURE:  Our associations don't line up\n"
+	set exit_code 1
+}
+
+#
+# Use sacctmgr to list the addition of cluster
+#
+set slist_pid [spawn $sacctmgr list cluster format=fairshare,GrpCPUs,GrpJobs,GrpSubmitJobs,GrpNodes,MaxCPUMins,MaxCPUs,MaxJobs,MaxSubmitJobs,MaxNodes,MaxWall]
+expect {
+	-re "Cluster" {
+		incr lmatches
+		exp_continue
+	}
+	-re "$tc1" {
+		incr lmatches
+		exp_continue
+	}
+	-re "$fs2 *$gc2 *$gj2 *$gs2 *$gn2 *$mm2 *$mc2 *$mj2 *$ms2 *$mn2 *$mw2 *$gm2 *$dqos2" {
+		incr lmatches
+		exp_continue
+	}
+	-re "$tc2" {
+		incr lmatches
+		exp_continue
+	}
+	-re "$fs2 *$gc2 *$gj2 *$gs2 *$gn2 *$mm2 *$mc2 *$mj2 *$ms2 *$mn2 *$mw2 *$gm2 *$dqos2" {
+		incr lmatches
+		exp_continue
+	}
+	-re "$tc3" {
+		incr lmatches
+		exp_continue
+	}
+	-re "$fs2 *$gc2 *$gj2 *$gs2 *$gn2 *$mm2 *$mc2 *$mj2 *$ms2 *$mn2 *$mw2 *$gm2 *$dqos2" {
+		incr lmatches
+		exp_continue
+	}
+		timeout {
+		send_user "\nFAILURE: sacctmgr list not responding\n"
+		slow_kill $slist_pid
+		set exit_code 1
+	}
+	eof {
+		wait
+	}
+}
+
+#
+# Use sacctmgr to delete the test cluster
+#
+set dmatches 0
+set sadel_pid [spawn $sacctmgr delete cluster $tc1,$tc2,$tc3]
+expect {
+	-re "Deleting clusters" {
+		incr dmatches
+		exp_continue
+	}
+	-re "$tc1" {
+		incr dmatches
+		exp_continue
+	}
+	-re "Would you like to commit changes\\\? \\\(You have 30 seconds to decide\\\)" {
+		incr dmatches
+		exp_continue
+	}
+	-re "\\\(N\\\/y\\\):" {
+		incr dmatches
+		send "Y"
+		exp_continue
+	}
+	timeout {
+		send_user "\nFAILURE: sacctmgr delete not responding\n"
+		slow_kill $sadel_pid
+		set exit_code 1
+	}
+	eof {
+		wait
+	}
+}
+
+if {$dmatches != 4} {
+	send_user "\nFAILURE: sacctmgr had a problem deleting cluster $dmatches\n"
+	set exit_code 1
+}
+
+#
+# Delete Qos
+#
+set dmatches 0
+spawn $sacctmgr -i delete Qos $dqos1 $dqos2
+expect {
+	-re "Deleting QOS" {
+		incr dmatches
+		exp_continue
+	}
+	timeout {
+		send_user "\nFAILURE: sacctmgr delete not responding\n"
+		slow_kill $sadel_pid
+		set exit_code 1
+	}
+	eof {
+		wait
+	}
+}
+
+if {$dmatches != 1} {
+	send_user "\nFAILURE: sacctmgr had a problem deleting QOS got $dmatches\n"
+	set exit_code 1
+}
+
+
+if { ![check_acct_associations] } {
+	send_user "\nFAILURE:  Our associations don't line up\n"
+	set exit_code 1
+}
+
+if {$exit_code == 0} {
+	print_success $test_id
+}
+
+exit $exit_code
