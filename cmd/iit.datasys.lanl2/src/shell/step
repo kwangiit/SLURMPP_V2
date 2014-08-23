@@ -1,0 +1,30 @@
+ ssh node-2.sb.usrc
+ cd /lanl/src
+ #make
+ 
+ ./gen_conf -c slurm2.conf -t host_file -s slurm.conf
+ cd shell
+ bash cleanNFS.sh
+ #bash cleanAllNodes.sh
+ bash initNode2.sh
+ #bash initAllNodes.sh
+ bash genSlurmHosts.sh
+ bash startAllSlurm.sh
+ 
+ bash job.sh 2
+ bash job.sh 4
+ bash job.sh 8
+ bash job.sh 16
+ bash job.sh 32
+ bash job.sh 64
+ bash job.sh 128
+ bash job.sh 256
+ bash job.sh 512
+ bash job.sh 1024
+ bash job.sh 2048
+ bash job.sh 4096
+ bash job.sh 8192 no
+ bash job.sh 16384
+ 
+
+ 

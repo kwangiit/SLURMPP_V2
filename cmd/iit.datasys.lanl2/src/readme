@@ -1,0 +1,15 @@
+
+
+#ctl_hosts is the file contains slurmctld hosts, PAY ATTENTION: append one more empty line in the end.
+#slv_hosts is the file contains slurmd hosts
+#slurm_ke.conf is the template file as a base to generate other slurm_*.conf files.
+
+#bash genconf.sh start end, where start and end means:
+Nodes=node-[$start-$end]
+NodeName=node-[$start-$end]
+
+--------------following the steps--------------
+1. make
+2. put slurmctld hosts into ctl_hosts
+3. put slurmd hosts into slv_hosts
+4. run bash genconf.sh start end, e.g. bash genconf.sh 3 102 

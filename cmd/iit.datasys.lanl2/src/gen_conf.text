@@ -1,0 +1,21 @@
+This file is to let you know how to use gen_conf to generate the very long Nodeaddr list
+
+1. to see usage, run ./gen_conf, you will see
+
+Usage:
+./gen_conf -c conf_file -t host_file -s save_file [-h(help)]
+
+-c conf_file: 
+	the template of slurm.conf, e.g. slurm2.conf. 
+	You need to change the s512(in slurm2.conf) to your experiment name.
+
+-t host_file: 
+	the file that contains list of hosts on Kodiak, e.g. ko0150, a host per line.
+	the order every host appears must match that of node-#, that is, the first line(e.g. ko0150) in host_file is the name of node-1, .... 
+	 
+-s save_file: file to save the output, e.g. slurm.conf. Nodearr will look like Nodeaddr=ko[0150,0407,0421,0614,0600]
+
+ 
+2. slurm2.conf is template config, change the s512(in slurm2.conf) to your experiment name.
+
+3. other special attentions, refer to the file node-config.txt I gave you.

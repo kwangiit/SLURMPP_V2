@@ -1,0 +1,1 @@
+scp -r /home/xiaobing/IIT-study/research/workspace/iit.datasys/iit.datasys.lanl/src  xzhou40@216.47.152.142:/home/xzhou40/lanl
