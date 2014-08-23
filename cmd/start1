@@ -1,0 +1,71 @@
+#!/bin/bash
+n=$1
+p=$2
+t=$3
+
+zht_base=/users/kwangiit/hpdc14/src/slurm-2.5.3/src/ZHT/src
+ctrl_base=/users/kwangiit/hpdc14/src/slurm-2.5.3/src/controller
+
+echo "running zht server"
+cp zhtmemlist $zht_base
+
+echo "ld file"
+parallel-ssh -t 0 -A --hosts=host -O StrictHostKeyChecking=no -O UserKnownHostsFile=/dev/null 'sudo cp /users/kwangiit/hpdc14/config/ld.so.conf /etc/; sudo ldconfig'
+
+echo "change system open files"
+bash sysChange.sh
+
+echo "start zht server"
+parallel-ssh -t 0 -o /tmp/ -p 250 -O StrictHostKeyChecking=no -O UserKnownHostsFile=/dev/null --hosts=host "$zht_base/zhtserver -z $zht_base/zht.conf -n $zht_base/zhtmemlist > /tmp/zht_output &"
+    
+sleep 5
+
+echo "running controllers"
+
+declare -a hostArray
+let i=0
+while IFS=$'\n' read -r line_data; do
+	hostArray[i]="${line_data}"
+	((++i))
+done < host
+
+for i in `seq 1 $n`; do
+	#j=${i//[!0-9]}
+	j=$(($i-1))
+	echo "$ctrl_base/controller /users/kwangiit/hpdc14/config/slurm.$i.$n.$p.conf $n /users/kwangiit/hpdc14/cmd/ctrlmemlist $p /users/kwangiit/hpdc14/workload/workload.$i.$n.$p $zht_base/zht.conf $zht_base/zhtmemlist $t $i"
+	ssh ${hostArray[j]} -o 'UserKnownHostsFile /dev/null' -o 'strictHostKeyChecking no' "nohup $ctrl_base/controller /users/kwangiit/hpdc14/config/slurm.$i.$n.$p.conf $n /users/kwangiit/hpdc14/cmd/ctrlmemlist $p /users/kwangiit/hpdc14/workload/workload.$i.$n.$p $zht_base/zht.conf $zht_base/zhtmemlist $t $i > /tmp/ctrl_output &"
+done
+
+sleep 5
+
+echo "running all the slurmds"
+for i in `seq 1 $n`; do
+	parallel-ssh -t 0 -o /tmp/ -p 250 -O StrictHostKeyChecking=no -O UserKnownHostsFile=/dev/null --hosts=slurmnode_${i} "/users/kwangiit/hpdc14/slurm/sbin/./slurmd -f /users/kwangiit/hpdc14/config/slurm.$i.$n.$p.conf &" 
+done
+
+sleep 2000
+echo "benchmark done here ......"    
+
+echo "collect all the results of the controller"
+for i in `seq 1 $n`; do
+	j=$(($i-1))
+	scp -o 'StrictHostKeyChecking no' -o 'UserKnownHostsFile /dev/null' ${hostArray[j]}:/tmp/ctrl_output /users/kwangiit/hpdc14/output/ctrl_output.${i}.${n}.${p}
+done
+
+for i in `seq 1 $n`; do
+	cp job_output_${i} /users/kwangiit/hpdc14/output/job_output.${i}.${n}.${p}
+done
+
+echo "kill all the controllers"
+parallel-ssh -t 0 -o /tmp/ -p 250 -O StrictHostKeyChecking=no -O UserKnownHostsFile=/dev/null --hosts=host "killall -9 controller &"
+    
+sleep 5
+
+echo "kill all the zht servers"
+parallel-ssh -t 0 -o /tmp/ -p 250 -O StrictHostKeyChecking=no -O UserKnownHostsFile=/dev/null --hosts=host "killall -9 zhtserver &"
+
+echo "kill all the slurmds"
+for i in `seq 1 $n`; do
+	parallel-ssh -t 0 -o /tmp/ -p 250 -O StrictHostKeyChecking=no -O UserKnownHostsFile=/dev/null --hosts=slurmnode_${i} "killall -9 slurmd &"
+	parallel-ssh -t 0 -o /tmp/ -p 250 -O StrictHostKeyChecking=no -O UserKnownHostsFile=/dev/null --hosts=slurmnode_${i} "killall -9 slurmstepd &"
+done

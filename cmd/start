@@ -1,0 +1,114 @@
+#!/bin/bash -e
+    
+# n is number of controller
+# p is partition size
+# t is number of processing threads of a controller
+
+n=$1
+p=$2
+t=$3
+    
+zht_base=/users/kwangiit/hpdc14/src/slurm-2.6.5/src/ZHT/src
+ctrl_base=/users/kwangiit/hpdc14/src/slurm-2.6.5/src/controller
+work_base=/users/kwangiit/hpdc14
+
+echo "running zht server"
+
+echo "$work_base/memlist/zhtnode.txt"
+rm -rf $work_base/memlist/zhtnode.txt
+rm -rf $work_base/memlist/zhtmemlist.txt
+    
+for i in `seq 1 $n`; do
+    echo node-$i.distjoblaunch.usrc.kodiak.nx >> $work_base/memlist/zhtnode.txt
+    echo node-$i.distjoblaunch.usrc.kodiak.nx 50000 >> $work_base/memlist/zhtmemlist.txt
+done
+
+echo "ld file"
+echo "sudo cp $work_base/config/ld.so.conf /etc/"
+#sleep 1000
+
+parallel-ssh -t 0 -A --hosts=$work_base/memlist/zhtnode.txt -O StrictHostKeyChecking=no -O UserKnownHostsFile=/dev/null 'sudo cp $work_base/config/ld.so.conf /etc/; sudo ldconfig &'
+
+#parallel-ssh -t 0 -A --hosts=$work_base/memlist/zhtnode.txt -O StrictHostKeyChecking=no -O UserKnownHostsFile=/dev/null "sudo ldconfig &"
+
+#cp zhtmemlist.txt /tmp/
+
+#for i in `seq 2 $n`; do
+#scp -o 'StrictHostKeyChecking no' -o 'UserKnownHostsFile /dev/null' zhtmemlist.txt node-$i.distjoblaunch.usrc.kodiak.nx:/tmp/ 
+#done
+    
+echo "start zht server"
+parallel-ssh -t 0 -A --hosts=$work_base/memlist/zhtnode.txt -O StrictHostKeyChecking=no -O UserKnownHostsFile=/dev/null "$zht_base/zhtserver -z $zht_base/zht.conf -n $work_base/memlist/zhtmemlist.txt &"
+    
+sleep 5
+
+echo "running controllers"
+
+rm -rf $work_base/memlist/ctrlmemlist.txt
+for i in `seq 1 $n`; do
+    echo node-$i >> $work_base/memlist/ctrlmemlist.txt
+done
+    
+for i in `seq 1 $n`; do
+    #ssh -o 'UserKnownHostsFile=/dev/null' -o 'strictHostKeyChecking=no' node-$i.distjoblaunch.usrc.kodiak.nx "$ctrl_base/controller ~/slurm_$i/slurm.$i.$n.$p.conf $n ~/ctrlnode.txt $p ~/workload_$i/workload $zht_base/zht.conf /tmp/zhtmemlist.txt $t > /tmp/ctrl_output &"   #todo: the node-x in ctrlnode.txt are identical to that in slurm.$i.$n.$p.conf??
+
+    ssh node-$i.distjoblaunch.usrc.kodiak.nx -o 'UserKnownHostsFile /dev/null' -o 'strictHostKeyChecking no' "nohup $ctrl_base/controller $work_base/config/slurm.$i.$n.$p.conf $n $work_base/memlist/ctrlmemlist.txt $p $work_base/workload/workload.$i.$n.$p $zht_base/zht.conf $work_base/memlist/zhtmemlist.txt $t $i >& /tmp/ctrl_output &"
+    #ssh node-$i.distjoblaunch.usrc.kodiak.nx -o 'UserKnownHostsFile /dev/null' -o 'strictHostKeyChecking no' "echo node-$i.distjoblaunch.usrc.kodiak.nx > /tmp/ctrl_output &"
+done
+    
+    
+sleep 1000
+
+echo "running all the slurmds"
+    #rm slurmdnode.txt
+    
+    #start=$(($n + 1))
+    #end=$($n * $p) 
+    
+for i in `seq 1 $n`; do
+    rm -rf $work_base/memlist/slurmdnode.$i.txt
+    k=$(($i-1))
+    m=$(($k*$p))
+    x=$(($m+$n))
+    for j in `seq 1 $p`; do
+        #echo "node-$(($x+$j)).distjoblaunch.usrc.kodiak.nx >> slurmdmem/slurmdnode_${i}.txt"
+        echo node-$(($x+$j)).distjoblaunch.usrc.kodiak.nx >> $work_base/memlist/slurmdnode.$i.txt
+    done
+done  
+
+echo "start to run slurmds"
+for i in `seq 1 $n`; do
+    parallel-ssh -t 0 -o /tmp/ -p 250 -O StrictHostKeyChecking=no -O UserKnownHostsFile=/dev/null --hosts=$work_base/memlist/slurmdnode.$i.txt "$work_base/slurm/sbin/slurmd -f $work_base/config/slurm.$i.$n.$p.conf &" 
+done
+    
+sleep 120
+echo "benchmark done here..."
+    
+echo "collect all the results of the controller"
+cp /tmp/ctrl_output $work_base/output/ctrl.output.1.$n.$p
+for i in `seq 2 $n`; do
+    scp -o 'StrictHostKeyChecking no' -o 'UserKnownHostsFile /dev/null' node-$i.distjoblaunch.usrc.kodiak.nx:/tmp/ctrl_output $work_base/output/ctrl.output.$i.$n.$p
+done
+    
+echo "kill all the controllers"
+    
+parallel-ssh -t 0 -o /tmp/ -p 250 -O StrictHostKeyChecking=no -O UserKnownHostsFile=/dev/null --hosts=$work_base/memlist/zhtnode.txt "killall -9 controller &"
+    
+sleep 5
+
+echo "kill all the zht servers"
+parallel-ssh -t 0 -o /tmp/ -p 250 -O StrictHostKeyChecking=no -O UserKnownHostsFile=/dev/null --hosts=$work_base/memlist/zhtnode.txt "killall -9 zhtserver &"
+    
+echo "kill all the slurmds" 
+start=$(($n+1))
+all=$(($n*$p))
+end=$(($all+$n))
+rm -rf $work_base/memlist/slurmdall.txt
+for i in `seq $start $end`; do
+    echo node-$i.distjoblaunch.usrc.kodiak.nx >> $work_base/memlist/slurmdall.txt
+done
+    
+parallel-ssh -t 0 -o /tmp/ -p 250 -O StrictHostKeyChecking=no -O UserKnownHostsFile=/dev/null --hosts=$work_base/memlist/slurmdall.txt "killall -9 slurmd &"
+
+echo "kill all the slurmstepds"
+parallel-ssh -t 0 -o /tmp/ -p 250 -O StrictHostKeyChecking=no -O UserKnownHostsFile=/dev/null --hosts=$work_base/memlist/slurmdall.txt "killall -9 slurmstepd &"

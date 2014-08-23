@@ -1,0 +1,431 @@
+OK, I am ready!, the id is:node-1, and resource is:50,node-3,node-4,node-5,node-6,node-7,node-9,node-11,node-12,node-14,node-15,node-16,node-21,node-24,node-19,node-22,node-26,node-29,node-31,node-33,node-32,node-34,node-35,node-38,node-37,node-40,node-39,node-36,node-43,node-46,node-42,node-44,node-41,node-45,node-47,node-48,node-49,node-50,node-51,node-18,node-23,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30
+The job is:srun -N1 sleep 7560
+random controller selected is:node-1
+The thread id is:3279742720, and the nodes allocated are:node-3
+OK, the controller id is:node-1, and nodelist is:node-3
+The node list for this job is:,node-3
+The job is:srun -N1 sleep 7568
+random controller selected is:node-1
+The thread id is:3271350016, and the nodes allocated are:node-4
+OK, the controller id is:node-1, and nodelist is:node-4
+The node list for this job is:,node-4
+The controller is:node-1, and nodes are:49,node-5,node-6,node-7,node-9,node-11,node-12,node-14,node-15,node-16,node-21,node-24,node-19,node-22,node-26,node-29,node-31,node-33,node-32,node-34,node-35,node-38,node-37,node-40,node-39,node-36,node-43,node-46,node-42,node-44,node-41,node-45,node-47,node-48,node-49,node-50,node-51,node-18,node-23,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3
+The job is:srun -N1 sleep 7561
+random controller selected is:node-1
+The thread id is:3254564608, and the nodes allocated are:node-5
+OK, the controller id is:node-1, and nodelist is:node-5
+The node list for this job is:,node-5
+The job is:srun -N3 sleep 14972
+random controller selected is:node-1
+The controller is:node-1, and nodes are:49,node-6,node-7,node-9,node-11,node-12,node-14,node-15,node-16,node-21,node-24,node-19,node-22,node-26,node-29,node-31,node-33,node-32,node-34,node-35,node-38,node-37,node-40,node-39,node-36,node-43,node-46,node-42,node-44,node-41,node-45,node-47,node-48,node-49,node-50,node-51,node-18,node-23,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4
+The thread id is:3237779200, and the nodes allocated are:node-6,node-7,node-9
+OK, the controller id is:node-1, and nodelist is:node-6,node-7,node-9
+The node list for this job is:,node-6,node-7,node-9
+The controller is:node-1, and nodes are:47,node-11,node-12,node-14,node-15,node-16,node-21,node-24,node-19,node-22,node-26,node-29,node-31,node-33,node-32,node-34,node-35,node-38,node-37,node-40,node-39,node-36,node-43,node-46,node-42,node-44,node-41,node-45,node-47,node-48,node-49,node-50,node-51,node-18,node-23,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5
+The job is:srun -N1 sleep 7571
+random controller selected is:node-1
+The thread id is:3220993792, and the nodes allocated are:node-11
+OK, the controller id is:node-1, and nodelist is:node-11
+The node list for this job is:,node-11
+The job is:srun -N1 sleep 3653
+random controller selected is:node-1
+The thread id is:3204208384, and the nodes allocated are:node-12
+OK, the controller id is:node-1, and nodelist is:node-12
+The node list for this job is:,node-12
+The job is:srun -N20 sleep 6147
+random controller selected is:node-1
+The query_value is:45,node-14,node-15,node-16,node-21,node-24,node-19,node-22,node-26,node-29,node-31,node-33,node-32,node-34,node-35,node-38,node-37,node-40,node-39,node-36,node-43,node-46,node-42,node-44,node-41,node-45,node-47,node-48,node-49,node-50,node-51,node-18,node-23,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5
+The controller is:node-1, and nodes are:46,node-14,node-15,node-16,node-21,node-24,node-19,node-22,node-26,node-29,node-31,node-33,node-32,node-34,node-35,node-38,node-37,node-40,node-39,node-36,node-43,node-46,node-42,node-44,node-41,node-45,node-47,node-48,node-49,node-50,node-51,node-18,node-23,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-11
+The query_value is:46,node-14,node-15,node-16,node-21,node-24,node-19,node-22,node-26,node-29,node-31,node-33,node-32,node-34,node-35,node-38,node-37,node-40,node-39,node-36,node-43,node-46,node-42,node-44,node-41,node-45,node-47,node-48,node-49,node-50,node-51,node-18,node-23,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-11
+compare and swap failied!
+The controller is:node-1, and nodes are:49,node-14,node-15,node-16,node-21,node-24,node-19,node-22,node-26,node-29,node-31,node-33,node-32,node-34,node-35,node-38,node-37,node-40,node-39,node-36,node-43,node-46,node-42,node-44,node-41,node-45,node-47,node-48,node-49,node-50,node-51,node-18,node-23,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9
+compare and swap failied!
+The thread id is:3187422976, and the nodes allocated are:node-14,node-15,node-16,node-21,node-24,node-19,node-22,node-26,node-29,node-31,node-33,node-32,node-34,node-35,node-38,node-37,node-40,node-39,node-36,node-43
+OK, the controller id is:node-1, and nodelist is:node-14,node-15,node-16,node-21,node-24,node-19,node-22,node-26,node-29,node-31,node-33,node-32,node-34,node-35,node-38,node-37,node-40,node-39,node-36,node-43
+The node list for this job is:,node-14,node-15,node-16,node-21,node-24,node-19,node-22,node-26,node-29,node-31,node-33,node-32,node-34,node-35,node-38,node-37,node-40,node-39,node-36,node-43
+The job is:srun -N1 sleep 2733
+random controller selected is:node-1
+The controller is:node-1, and nodes are:30,node-46,node-42,node-44,node-41,node-45,node-47,node-48,node-49,node-50,node-51,node-18,node-23,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9,node-12
+The thread id is:3170637568, and the nodes allocated are:node-46
+OK, the controller id is:node-1, and nodelist is:node-46
+The node list for this job is:,node-46
+The job is:srun -N1 sleep 565
+random controller selected is:node-1
+The thread id is:2952787712, and the nodes allocated are:node-42
+OK, the controller id is:node-1, and nodelist is:node-42
+The node list for this job is:,node-42
+The job is:srun -N1 sleep 911
+random controller selected is:node-1
+The thread id is:2940184320, and the nodes allocated are:node-44
+OK, the controller id is:node-1, and nodelist is:node-44
+The node list for this job is:,node-44
+The controller is:node-1, and nodes are:28,node-41,node-45,node-47,node-48,node-49,node-50,node-51,node-18,node-23,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46
+The job is:srun -N1 sleep 7556
+random controller selected is:node-1
+The thread id is:2915006208, and the nodes allocated are:node-41
+OK, the controller id is:node-1, and nodelist is:node-41
+The node list for this job is:,node-41
+The job is:srun -N1 sleep 7577
+The controller is:node-1, and nodes are:28,node-45,node-47,node-48,node-49,node-50,node-51,node-18,node-23,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42
+random controller selected is:node-1
+The thread id is:2898220800, and the nodes allocated are:node-45
+OK, the controller id is:node-1, and nodelist is:node-45
+The node list for this job is:,node-45
+The controller is:node-1, and nodes are:28,node-47,node-48,node-49,node-50,node-51,node-18,node-23,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42,node-44
+The job is:srun -N1 sleep 7590
+random controller selected is:node-1
+The thread id is:2743068416, and the nodes allocated are:node-47
+OK, the controller id is:node-1, and nodelist is:node-47
+The node list for this job is:,node-47
+The controller is:node-1, and nodes are:28,node-48,node-49,node-50,node-51,node-18,node-23,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42,node-44,node-41
+The job is:srun -N1 sleep 7580
+random controller selected is:node-1
+The thread id is:2726283008, and the nodes allocated are:node-48
+OK, the controller id is:node-1, and nodelist is:node-48
+The node list for this job is:,node-48
+The job is:srun -N1 sleep 7566
+The controller is:node-1, and nodes are:28,node-49,node-50,node-51,node-18,node-23,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42,node-44,node-41,node-45
+random controller selected is:node-1
+The thread id is:2709497600, and the nodes allocated are:node-49
+OK, the controller id is:node-1, and nodelist is:node-49
+The node list for this job is:,node-49
+The job is:srun -N1 sleep 335
+random controller selected is:node-1
+The thread id is:2701104896, and the nodes allocated are:node-50
+OK, the controller id is:node-1, and nodelist is:node-50
+The node list for this job is:,node-50
+The job is:srun -N1 sleep 901
+The controller is:node-1, and nodes are:27,node-51,node-18,node-23,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42,node-44,node-41,node-45,node-48
+random controller selected is:node-1
+The controller is:node-1, and nodes are:28,node-51,node-18,node-23,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42,node-44,node-41,node-45,node-48,node-47
+The thread id is:2332022528, and the nodes allocated are:node-51
+OK, the controller id is:node-1, and nodelist is:node-51
+The node list for this job is:,node-51
+The controller is:node-1, and nodes are:28,node-18,node-23,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42,node-44,node-41,node-45,node-48,node-47,node-49
+The job is:srun -N1 sleep 327
+random controller selected is:node-1
+The thread id is:2315237120, and the nodes allocated are:node-18
+OK, the controller id is:node-1, and nodelist is:node-18
+The node list for this job is:,node-18
+The job is:srun -N1 sleep 36360
+random controller selected is:node-1
+The controller is:node-1, and nodes are:28,node-23,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42,node-44,node-41,node-45,node-48,node-47,node-49,node-50
+The thread id is:2298451712, and the nodes allocated are:node-23
+OK, the controller id is:node-1, and nodelist is:node-23
+The node list for this job is:,node-23
+The controller is:node-1, and nodes are:28,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42,node-44,node-41,node-45,node-48,node-47,node-49,node-50,node-51
+The job is:srun -N20 sleep 43363
+random controller selected is:node-1
+The thread id is:2273273600, and the nodes allocated are:node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42
+OK, the controller id is:node-1, and nodelist is:node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42
+The node list for this job is:,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42
+The job is:srun -N1 sleep 3651
+The controller is:node-1, and nodes are:9,node-44,node-41,node-45,node-48,node-47,node-49,node-50,node-51,node-18
+random controller selected is:node-1
+The thread id is:2264880896, and the nodes allocated are:node-44
+OK, the controller id is:node-1, and nodelist is:node-44
+The node list for this job is:,node-44
+The job is:srun -N5 sleep 42982
+random controller selected is:node-1
+The thread id is:2256488192, and the nodes allocated are:node-41,node-45,node-48,node-47,node-49
+OK, the controller id is:node-1, and nodelist is:node-41,node-45,node-48,node-47,node-49
+The node list for this job is:,node-41,node-45,node-48,node-47,node-49
+The job is:srun -N3 sleep 6543
+random controller selected is:node-1
+The thread id is:2248095488, and the nodes allocated are:node-50,node-51,node-18
+OK, the controller id is:node-1, and nodelist is:node-50,node-51,node-18
+The node list for this job is:,node-50,node-51,node-18
+The controller is:node-1, and nodes are:1,node-44
+The job is:srun -N3 sleep 6264
+random controller selected is:node-1
+The thread id is:2231310080, and the nodes allocated are:node-44
+OK, the controller id is:node-1, and nodelist is:node-44
+random controller selected is:node-1
+The controller is:node-1, and nodes are:1,node-23
+The controller is:node-1, and nodes are:4,node-23,node-50,node-51,node-18
+The controller is:node-1, and nodes are:24,node-23,node-50,node-51,node-18,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42
+The controller is:node-1, and nodes are:29,node-23,node-50,node-51,node-18,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42,node-41,node-45,node-48,node-47,node-49
+random controller selected is:node-1
+The thread id is:2231310080, and the nodes allocated are:node-23,node-50
+OK, the controller id is:node-1, and nodelist is:node-23,node-50
+The node list for this job is:,node-44,node-23,node-50
+The job is:srun -N3 sleep 6256
+random controller selected is:node-1
+The thread id is:2189346560, and the nodes allocated are:node-51,node-18,node-27
+OK, the controller id is:node-1, and nodelist is:node-51,node-18,node-27
+The node list for this job is:,node-51,node-18,node-27
+The job is:srun -N3 sleep 6296
+random controller selected is:node-1
+The thread id is:2180953856, and the nodes allocated are:node-2,node-8,node-10
+OK, the controller id is:node-1, and nodelist is:node-2,node-8,node-10
+The node list for this job is:,node-2,node-8,node-10
+The job is:srun -N3 sleep 6225
+The controller is:node-1, and nodes are:24,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42,node-41,node-45,node-48,node-47,node-49,node-44,node-23,node-50
+random controller selected is:node-1
+The thread id is:2164168448, and the nodes allocated are:node-13,node-17,node-20
+OK, the controller id is:node-1, and nodelist is:node-13,node-17,node-20
+The node list for this job is:,node-13,node-17,node-20
+The controller is:node-1, and nodes are:24,node-25,node-28,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42,node-41,node-45,node-48,node-47,node-49,node-44,node-23,node-50,node-51,node-18,node-27
+The job is:srun -N3 sleep 6263
+random controller selected is:node-1
+The thread id is:2147383040, and the nodes allocated are:node-25,node-28,node-30
+OK, the controller id is:node-1, and nodelist is:node-25,node-28,node-30
+The node list for this job is:,node-25,node-28,node-30
+The job is:srun -N1 sleep 150
+The controller is:node-1, and nodes are:24,node-3,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42,node-41,node-45,node-48,node-47,node-49,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-8,node-10
+random controller selected is:node-1
+The thread id is:2130597632, and the nodes allocated are:node-3
+OK, the controller id is:node-1, and nodelist is:node-3
+The node list for this job is:,node-3
+The controller is:node-1, and nodes are:26,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42,node-41,node-45,node-48,node-47,node-49,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-8,node-10,node-13,node-17,node-20
+The job is:srun -N3 sleep 6283
+random controller selected is:node-1
+The controller is:node-1, and nodes are:29,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42,node-41,node-45,node-48,node-47,node-49,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30
+The thread id is:2113812224, and the nodes allocated are:node-4,node-5,node-11
+OK, the controller id is:node-1, and nodelist is:node-4,node-5,node-11
+The node list for this job is:,node-4,node-5,node-11
+The controller is:node-1, and nodes are:27,node-6,node-7,node-9,node-12,node-46,node-42,node-41,node-45,node-48,node-47,node-49,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3
+The job is:srun -N3 sleep 6310
+random controller selected is:node-1
+The thread id is:2088634112, and the nodes allocated are:node-6,node-7,node-9
+OK, the controller id is:node-1, and nodelist is:node-6,node-7,node-9
+The node list for this job is:,node-6,node-7,node-9
+The job is:srun -N3 sleep 6246
+random controller selected is:node-1
+The thread id is:2080241408, and the nodes allocated are:node-12,node-46,node-42
+OK, the controller id is:node-1, and nodelist is:node-12,node-46,node-42
+The node list for this job is:,node-12,node-46,node-42
+The job is:srun -N3 sleep 6205
+The controller is:node-1, and nodes are:24,node-41,node-45,node-48,node-47,node-49,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-11
+random controller selected is:node-1
+The thread id is:2063456000, and the nodes allocated are:node-41,node-45,node-48
+OK, the controller id is:node-1, and nodelist is:node-41,node-45,node-48
+The node list for this job is:,node-41,node-45,node-48
+The controller is:node-1, and nodes are:24,node-47,node-49,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9
+The job is:srun -N3 sleep 6144
+The controller is:node-1, and nodes are:27,node-47,node-49,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42
+random controller selected is:node-1
+The thread id is:2029885184, and the nodes allocated are:node-47,node-49,node-44
+OK, the controller id is:node-1, and nodelist is:node-47,node-49,node-44
+The node list for this job is:,node-47,node-49,node-44
+The job is:srun -N3 sleep 6011
+random controller selected is:node-1
+The thread id is:2021492480, and the nodes allocated are:node-23,node-50,node-51
+OK, the controller id is:node-1, and nodelist is:node-23,node-50,node-51
+The node list for this job is:,node-23,node-50,node-51
+The job is:srun -N3 sleep 5764
+random controller selected is:node-1
+The thread id is:2013099776, and the nodes allocated are:node-18,node-27,node-2
+OK, the controller id is:node-1, and nodelist is:node-18,node-27,node-2
+The node list for this job is:,node-18,node-27,node-2
+The job is:srun -N3 sleep 5484
+random controller selected is:node-1
+The thread id is:1996314368, and the nodes allocated are:node-8,node-10,node-13
+OK, the controller id is:node-1, and nodelist is:node-8,node-10,node-13
+The node list for this job is:,node-8,node-10,node-13
+The query_value is:15,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42
+The controller is:node-1, and nodes are:18,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42,node-47,node-49,node-44
+The controller is:node-1, and nodes are:21,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42,node-47,node-49,node-44,node-23,node-50,node-51
+The job is:srun -N3 sleep 17842
+random controller selected is:node-1
+The thread id is:1979528960, and the nodes allocated are:node-17,node-20,node-25
+OK, the controller id is:node-1, and nodelist is:node-17,node-20,node-25
+The node list for this job is:,node-17,node-20,node-25
+The job is:srun -N1 sleep 10999
+The query_value is:18,node-28,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42,node-47,node-49,node-44,node-23,node-50,node-51
+The controller is:node-1, and nodes are:21,node-28,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42,node-47,node-49,node-44,node-23,node-50,node-51,node-18,node-27,node-2
+random controller selected is:node-1
+The thread id is:1962743552, and the nodes allocated are:node-28
+OK, the controller id is:node-1, and nodelist is:node-28
+The node list for this job is:,node-28
+The controller is:node-1, and nodes are:23,node-30,node-3,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42,node-47,node-49,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-8,node-10,node-13
+The job is:srun -N1 sleep 11037
+random controller selected is:node-1
+The thread id is:1945958144, and the nodes allocated are:node-30
+OK, the controller id is:node-1, and nodelist is:node-30
+The node list for this job is:,node-30
+The job is:srun -N1 sleep 11037
+random controller selected is:node-1
+The thread id is:1937565440, and the nodes allocated are:node-3
+OK, the controller id is:node-1, and nodelist is:node-3
+The node list for this job is:,node-3
+The controller is:node-1, and nodes are:24,node-4,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42,node-47,node-49,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25
+The job is:srun -N1 sleep 11027
+random controller selected is:node-1
+The thread id is:1920780032, and the nodes allocated are:node-4
+OK, the controller id is:node-1, and nodelist is:node-4
+The node list for this job is:,node-4
+The query_value is:23,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42,node-47,node-49,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25
+The controller is:node-1, and nodes are:24,node-5,node-11,node-6,node-7,node-9,node-12,node-46,node-42,node-47,node-49,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28
+The job is:srun -N1 sleep 11038
+random controller selected is:node-1
+The thread id is:1895601920, and the nodes allocated are:node-5
+OK, the controller id is:node-1, and nodelist is:node-5
+The node list for this job is:,node-5
+The query_value is:23,node-11,node-6,node-7,node-9,node-12,node-46,node-42,node-47,node-49,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28
+The controller is:node-1, and nodes are:24,node-11,node-6,node-7,node-9,node-12,node-46,node-42,node-47,node-49,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30
+The job is:srun -N1 sleep 10984
+The controller is:node-1, and nodes are:25,node-11,node-6,node-7,node-9,node-12,node-46,node-42,node-47,node-49,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3
+random controller selected is:node-1
+The thread id is:1870423808, and the nodes allocated are:node-11
+OK, the controller id is:node-1, and nodelist is:node-11
+The node list for this job is:,node-11
+The job is:srun -N1 sleep 11046
+random controller selected is:node-1
+The controller is:node-1, and nodes are:25,node-6,node-7,node-9,node-12,node-46,node-42,node-47,node-49,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4
+The thread id is:1853638400, and the nodes allocated are:node-6
+OK, the controller id is:node-1, and nodelist is:node-6
+The node list for this job is:,node-6
+The job is:srun -N1 sleep 11036
+random controller selected is:node-1
+The controller is:node-1, and nodes are:25,node-7,node-9,node-12,node-46,node-42,node-47,node-49,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5
+The thread id is:1836852992, and the nodes allocated are:node-7
+OK, the controller id is:node-1, and nodelist is:node-7
+The node list for this job is:,node-7
+The job is:srun -N3 sleep 9509
+random controller selected is:node-1
+The thread id is:1828460288, and the nodes allocated are:node-9,node-12,node-46
+OK, the controller id is:node-1, and nodelist is:node-9,node-12,node-46
+The node list for this job is:,node-9,node-12,node-46
+The job is:srun -N3 sleep 9175
+random controller selected is:node-1
+The thread id is:1820067584, and the nodes allocated are:node-42,node-47,node-49
+OK, the controller id is:node-1, and nodelist is:node-42,node-47,node-49
+The node list for this job is:,node-42,node-47,node-49
+The job is:srun -N3 sleep 9177
+random controller selected is:node-1
+The controller is:node-1, and nodes are:20,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-6,node-11
+The controller is:node-1, and nodes are:19,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-6
+The thread id is:1794889472, and the nodes allocated are:node-44,node-23,node-50
+OK, the controller id is:node-1, and nodelist is:node-44,node-23,node-50
+The node list for this job is:,node-44,node-23,node-50
+The job is:srun -N3 sleep 9190
+The controller is:node-1, and nodes are:18,node-51,node-18,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-6,node-11,node-7
+The controller is:node-1, and nodes are:19,node-51,node-18,node-27,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-6,node-11,node-7,node-7
+random controller selected is:node-1
+The thread id is:1761318656, and the nodes allocated are:node-51,node-18,node-27
+OK, the controller id is:node-1, and nodelist is:node-51,node-18,node-27
+The node list for this job is:,node-51,node-18,node-27
+The job is:srun -N1 sleep 273
+random controller selected is:node-1
+The controller is:node-1, and nodes are:19,node-2,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-6,node-11,node-7,node-7,node-42,node-47,node-49
+compare and swap failied!
+The thread id is:1736140544, and the nodes allocated are:node-2
+OK, the controller id is:node-1, and nodelist is:node-2
+The node list for this job is:,node-2
+The query_value is:18,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-6,node-11,node-7,node-7,node-42,node-47,node-49
+The controller is:node-1, and nodes are:21,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-6,node-11,node-7,node-7,node-42,node-47,node-49,node-9,node-12,node-46
+The controller is:node-1, and nodes are:24,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-6,node-11,node-7,node-7,node-42,node-47,node-49,node-9,node-12,node-46,node-44,node-23,node-50
+The job is:srun -N1 sleep 36363
+random controller selected is:node-1
+The controller is:node-1, and nodes are:27,node-8,node-10,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-6,node-11,node-7,node-7,node-42,node-47,node-49,node-9,node-12,node-46,node-44,node-23,node-50,node-51,node-18,node-27
+compare and swap failied!
+The thread id is:1710962432, and the nodes allocated are:node-8
+OK, the controller id is:node-1, and nodelist is:node-8
+The node list for this job is:,node-8
+The job is:srun -N1 sleep 2907
+random controller selected is:node-1
+The thread id is:1694177024, and the nodes allocated are:node-10
+OK, the controller id is:node-1, and nodelist is:node-10
+The node list for this job is:,node-10
+The controller is:node-1, and nodes are:26,node-13,node-17,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-6,node-11,node-7,node-7,node-42,node-47,node-49,node-9,node-12,node-46,node-44,node-23,node-50,node-51,node-18,node-27,node-2
+The job is:srun -N1 sleep 11061
+random controller selected is:node-1
+The thread id is:1685784320, and the nodes allocated are:node-13
+OK, the controller id is:node-1, and nodelist is:node-13
+The node list for this job is:,node-13
+The job is:srun -N1 sleep 11067
+random controller selected is:node-1
+The thread id is:1677391616, and the nodes allocated are:node-17
+OK, the controller id is:node-1, and nodelist is:node-17
+The node list for this job is:,node-17
+The job is:srun -N1 sleep 11085
+random controller selected is:node-1
+The controller is:node-1, and nodes are:25,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-6,node-11,node-7,node-7,node-42,node-47,node-49,node-9,node-12,node-46,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-10
+compare and swap failied!
+The thread id is:1660606208, and the nodes allocated are:node-20
+OK, the controller id is:node-1, and nodelist is:node-20
+The node list for this job is:,node-20
+The job is:srun -N1 sleep 11060
+random controller selected is:node-1
+The controller is:node-1, and nodes are:25,node-25,node-28,node-30,node-3,node-4,node-5,node-6,node-11,node-7,node-7,node-42,node-47,node-49,node-9,node-12,node-46,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-10,node-13
+The thread id is:1643820800, and the nodes allocated are:node-25
+OK, the controller id is:node-1, and nodelist is:node-25
+The node list for this job is:,node-25
+The job is:srun -N1 sleep 11073
+random controller selected is:node-1
+The controller is:node-1, and nodes are:25,node-28,node-30,node-3,node-4,node-5,node-6,node-11,node-7,node-7,node-42,node-47,node-49,node-9,node-12,node-46,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-10,node-13,node-17
+The controller is:node-1, and nodes are:26,node-28,node-30,node-3,node-4,node-5,node-6,node-11,node-7,node-7,node-42,node-47,node-49,node-9,node-12,node-46,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-10,node-13,node-17,node-8
+compare and swap failied!
+The thread id is:1618642688, and the nodes allocated are:node-28
+OK, the controller id is:node-1, and nodelist is:node-28
+The node list for this job is:,node-28
+The job is:srun -N1 sleep 11061
+random controller selected is:node-1
+The controller is:node-1, and nodes are:26,node-30,node-3,node-4,node-5,node-6,node-11,node-7,node-7,node-42,node-47,node-49,node-9,node-12,node-46,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-10,node-13,node-17,node-8,node-20
+The thread id is:1601857280, and the nodes allocated are:node-30
+OK, the controller id is:node-1, and nodelist is:node-30
+The node list for this job is:,node-30
+The job is:srun -N1 sleep 11085
+random controller selected is:node-1
+The thread id is:1593464576, and the nodes allocated are:node-3
+OK, the controller id is:node-1, and nodelist is:node-3
+The node list for this job is:,node-3
+The job is:srun -N1 sleep 11063
+random controller selected is:node-1
+The controller is:node-1, and nodes are:25,node-4,node-5,node-6,node-11,node-7,node-7,node-42,node-47,node-49,node-9,node-12,node-46,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-10,node-13,node-17,node-8,node-20,node-25
+compare and swap failied!
+The thread id is:1576679168, and the nodes allocated are:node-4
+OK, the controller id is:node-1, and nodelist is:node-4
+The node list for this job is:,node-4
+The job is:srun -N1 sleep 11061
+random controller selected is:node-1
+The controller is:node-1, and nodes are:25,node-5,node-6,node-11,node-7,node-7,node-42,node-47,node-49,node-9,node-12,node-46,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-10,node-13,node-17,node-8,node-20,node-25,node-28
+compare and swap failied!
+The thread id is:1559893760, and the nodes allocated are:node-5
+OK, the controller id is:node-1, and nodelist is:node-5
+The node list for this job is:,node-5
+The job is:srun -N1 sleep 11064
+random controller selected is:node-1
+The controller is:node-1, and nodes are:25,node-6,node-11,node-7,node-7,node-42,node-47,node-49,node-9,node-12,node-46,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-10,node-13,node-17,node-8,node-20,node-25,node-28,node-30
+compare and swap failied!
+The thread id is:1526322944, and the nodes allocated are:node-6
+OK, the controller id is:node-1, and nodelist is:node-6
+The node list for this job is:,node-6
+The query_value is:24,node-11,node-7,node-7,node-42,node-47,node-49,node-9,node-12,node-46,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-10,node-13,node-17,node-8,node-20,node-25,node-28,node-30
+The job is:srun -N1 sleep 11081
+The controller is:node-1, and nodes are:25,node-11,node-7,node-7,node-42,node-47,node-49,node-9,node-12,node-46,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-10,node-13,node-17,node-8,node-20,node-25,node-28,node-30,node-3
+random controller selected is:node-1
+The query_value is:25,node-11,node-7,node-7,node-42,node-47,node-49,node-9,node-12,node-46,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-10,node-13,node-17,node-8,node-20,node-25,node-28,node-30,node-3
+The controller is:node-1, and nodes are:26,node-11,node-7,node-7,node-42,node-47,node-49,node-9,node-12,node-46,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-10,node-13,node-17,node-8,node-20,node-25,node-28,node-30,node-3,node-4
+compare and swap failied!
+The thread id is:1509537536, and the nodes allocated are:node-11
+OK, the controller id is:node-1, and nodelist is:node-11
+The node list for this job is:,node-11
+The job is:srun -N1 sleep 11041
+random controller selected is:node-1
+The controller is:node-1, and nodes are:26,node-7,node-7,node-42,node-47,node-49,node-9,node-12,node-46,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-10,node-13,node-17,node-8,node-20,node-25,node-28,node-30,node-3,node-4,node-5
+The thread id is:1492752128, and the nodes allocated are:node-7
+OK, the controller id is:node-1, and nodelist is:node-7
+The node list for this job is:,node-7
+The job is:srun -N1 sleep 11055
+random controller selected is:node-1
+The controller is:node-1, and nodes are:26,node-7,node-42,node-47,node-49,node-9,node-12,node-46,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-10,node-13,node-17,node-8,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-6
+The thread id is:1475966720, and the nodes allocated are:node-7
+OK, the controller id is:node-1, and nodelist is:node-7
+The node list for this job is:,node-7
+The job is:srun -N1 sleep 11030
+random controller selected is:node-1
+The controller is:node-1, and nodes are:26,node-42,node-47,node-49,node-9,node-12,node-46,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-10,node-13,node-17,node-8,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-6,node-11
+compare and swap failied!
+The thread id is:1459181312, and the nodes allocated are:node-42
+OK, the controller id is:node-1, and nodelist is:node-42
+The node list for this job is:,node-42
+The job is:srun -N1 sleep 11067
+random controller selected is:node-1
+The thread id is:1450788608, and the nodes allocated are:node-47
+OK, the controller id is:node-1, and nodelist is:node-47
+The node list for this job is:,node-47
+The controller is:node-1, and nodes are:25,node-49,node-9,node-12,node-46,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-10,node-13,node-17,node-8,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-6,node-11,node-7
+The job is:srun -N1 sleep 11161
+The controller is:node-1, and nodes are:26,node-49,node-9,node-12,node-46,node-44,node-23,node-50,node-51,node-18,node-27,node-2,node-10,node-13,node-17,node-8,node-20,node-25,node-28,node-30,node-3,node-4,node-5,node-6,node-11,node-7,node-7

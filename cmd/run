@@ -1,0 +1,46 @@
+#!/bin/bash
+n=$1
+p=$2
+
+zht_base=/users/kwangiit/slurmpp_v2/slurm/src/ZHT/src
+ctrl_base=/users/kwangiit/slurmpp_v2/install/sbin
+
+echo "running zht server"
+cp zhtmemlist $zht_base
+
+echo "ld file"
+parallel-ssh -t 0 -A --hosts=host -O StrictHostKeyChecking=no -O UserKnownHostsFile=/dev/null 'sudo cp /users/kwangiit/hpdc14/config/ld.so.conf /etc/; sudo ldconfig'
+
+echo "change system open files"
+bash sysChange.sh
+
+echo "start zht server"
+parallel-ssh -t 0 -o /tmp/ -p 250 -O StrictHostKeyChecking=no -O UserKnownHostsFile=/dev/null --hosts=host "$zht_base/zhtserver -z $zht_base/zht.conf -n $zht_base/zhtmemlist > /tmp/zht_output &"
+    
+sleep 5
+
+echo "running controllers"
+
+declare -a hostArray
+let i=0
+while IFS=$'\n' read -r line_data; do
+	hostArray[i]="${line_data}"
+	((++i))
+done < host
+
+for i in `seq 1 $n`; do
+	#j=${i//[!0-9]}
+	j=$(($i-1))
+	echo "$ctrl_base/slurmctld -C $n -f /users/kwangiit/slurmpp_v2/config/slurm.$i.$n.$p.conf -i $j -p $p -z $zht_base/zht.conf -Z $zht_base/zhtmemlist"
+	ssh ${hostArray[j]} -o 'UserKnownHostsFile /dev/null' -o 'strictHostKeyChecking no' "nohup $ctrl_base/slurmctld -C $n -f /users/kwangiit/slurmpp_v2/config/slurm.$i.$n.$p.conf -i $j -p $p -z $zht_base/zht.conf -Z $zht_base/zhtmemlist >& /tmp/ctrl_output &"
+done
+
+sleep 5
+
+echo "running all the slurmds"
+for i in `seq 1 $n`; do
+	parallel-ssh -t 0 -o /tmp/ -p 250 -O StrictHostKeyChecking=no -O UserKnownHostsFile=/dev/null --hosts=slurmnode_${i} "$ctrl_base/slurmd -f /users/kwangiit/slurmpp_v2/config/slurm.$i.$n.$p.conf &" 
+done
+
+sleep 10
+echo "all the programs are started!"

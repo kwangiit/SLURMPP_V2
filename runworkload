@@ -1,0 +1,5 @@
+#!/bin/bash
+
+bash workload &
+bash workload.1 &
+bash workload.2
