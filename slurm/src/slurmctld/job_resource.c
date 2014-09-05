@@ -5,40 +5,38 @@
  *      Author: kwang
  */
 
-#include <src/slurmctld/job_resource.h>
+#include "src/slurmctld/job_resource.h"
 
 hashtable *job_hashtable[MAXHASHSIZE];
 
 extern job_resource* init_job_resource()
 {
 	job_resource *a_job_res = xmalloc(sizeof(job_resource));
-	//srand(time(NULL));
 	pthread_mutex_lock(&num_job_recv_mutex);
 	num_job_recv++;
 	pthread_mutex_unlock(&num_job_recv_mutex);
 	
 	char *job_id_tmp = xmalloc(100);
-	char *str_num_job_recv = xmalloc(20);
-        sprintf(str_num_job_recv, "%d", num_job_recv);
-	//char *self_index_str = xmalloc(20);
-	//sprintf(self_index_str, "%d", self_index);
-
+	char *str_num_job_recv = int_to_str(num_job_recv);
 	strcat(job_id_tmp, str_num_job_recv);
 	strcat(job_id_tmp, str_self_index);
 	char **end = NULL;
 	a_job_res->job_id = (unsigned int) (strtol(job_id_tmp, end, 10));
-	
 	xfree(job_id_tmp);
 	xfree(str_num_job_recv);
-	//xfree(self_index_str);
-	//a_job_res->job_id = MIN_NOALLOC_JOBID +
-	//		((uint32_t) rand() %
-	//		 (MAX_NOALLOC_JOBID - MIN_NOALLOC_JOBID + 1));
-	//printf("The job id now is:%u\n", a_job_res->job_id);
 	a_job_res->num_try = 0;
 	a_job_res->num_node = 0;
 	a_job_res->sleep_length = 10000;
 	a_job_res->nodelist = xmalloc(30 * part_size * num_ctrl);
+	a_job_res->num_ctrl = 0;
+	a_job_res->ctrl_ids = xmalloc_2(num_ctrl, 30);
+	a_job_res->node_alloc = xmalloc_2(num_ctrl, 30 * part_size);
+	a_job_res->num_node_indi = xmalloc(sizeof(int) * num_ctrl);
+	int i;
+	for (i = 0; i < num_ctrl; i++) {
+		a_job_res->num_node_indi[i] = 0;
+	}
+
 	return a_job_res;
 }
 
@@ -48,13 +46,14 @@ extern void reset_job_resource(job_resource *a_job_res)
 		a_job_res->num_try = 0;
 		a_job_res->num_node = 0;
 		a_job_res->sleep_length = 10000;
+		a_job_res->num_ctrl = 0;
 		c_memset(a_job_res->nodelist, 30 * part_size * num_ctrl);
-	} else {
-		a_job_res = xmalloc(sizeof(job_resource));
-		a_job_res->num_try = 0;
-		a_job_res->num_node = 0;
-		a_job_res->sleep_length = 10000;
-		a_job_res->nodelist = xmalloc(30 * part_size * num_ctrl);
+		int i;
+		for (i = 0; i < num_ctrl; i++) {
+			c_memset(a_job_res->ctrl_ids[i], 30);
+			c_memset(a_job_res->node_alloc[i], 30 * part_size);
+			a_job_res->num_node_indi[i] = 0;
+		}
 	}
 }
 
@@ -71,27 +70,44 @@ extern void reset_job_resource(job_resource *a_job_res)
 
 void update_job_resource(job_resource *a_job_res,
 						    int num_node_allocated,
+						    char *ctrl_id,
 						    char *nodelist)
 {
 	a_job_res->num_try = 0;
 	a_job_res->sleep_length = 10000;
+	a_job_res->num_node += num_node_allocated;
 	if (a_job_res->num_node > 0) {
 		strcat(a_job_res->nodelist, ",");
 	}
 	strcat(a_job_res->nodelist, nodelist);
-	a_job_res->num_node += num_node_allocated;
+	printf("The nodelist allocated is:%s\n", nodelist);
+	int index = find_exist(a_job_res->ctrl_ids, ctrl_id, a_job_res->num_ctrl);
+	if (index < 0) {
+		strcat(a_job_res->ctrl_ids[a_job_res->num_ctrl], ctrl_id);
+		strcat(a_job_res->node_alloc[a_job_res->num_ctrl], nodelist);
+		a_job_res->num_node_indi[a_job_res->num_ctrl] += num_node_allocated;
+		printf("The number of nodes is:%d\n", a_job_res->num_node_indi[a_job_res->num_ctrl]);
+		a_job_res->num_ctrl++;
+	} else {
+		strcat(a_job_res->node_alloc[index], ",");
+		strcat(a_job_res->node_alloc[index], nodelist);
+		a_job_res->num_node_indi[index] += num_node_allocated;
+	}
 }
 
-int do_allocate(char *cur_free_res_str, job_resource *a_job_res,
-		char *query_value, int num_more_node)
+int do_allocate(char *free_res,
+				  char *ctrl_id,
+				  job_resource *a_job_res,
+				  char *query_value,
+				  int num_more_node)
 {
-	free_resource *cur_free_res = unpack_free_resource(cur_free_res_str);
+	free_resource *cur_free_res = unpack_free_resource(free_res);
 	int ret = 0;
 	if (cur_free_res->num_free_node > 0) {
 		int num_node_attempt = cur_free_res->num_free_node > num_more_node ?
 				num_more_node : cur_free_res->num_free_node;
 		int num_node_left = cur_free_res->num_free_node - num_node_attempt;
-		char *nodelist = xmalloc(part_size * num_ctrl * 30);
+		char *nodelist = xmalloc(part_size * 30);
 		int i;
 		for (i = 0; i < num_node_attempt; i++) {
 			strcat(nodelist, cur_free_res->free_nodelist[i]);
@@ -108,18 +124,18 @@ int do_allocate(char *cur_free_res_str, job_resource *a_job_res,
 			strcat(new_free_res->free_nodelist[i],
 					cur_free_res->free_nodelist[i + num_node_attempt]);
 		}
-		char *new_free_res_str = pack_free_resource(new_free_res);
-		int ret = c_zht_compare_swap("number of free node",
-				cur_free_res_str, new_free_res_str, query_value);
+		char *str_new_free_res = pack_free_resource(new_free_res);
+		int ret = c_zht_compare_swap(ctrl_id,
+				free_res, str_new_free_res, query_value);
 		if (ret == 0) {
-			update_job_resource(a_job_res, num_node_attempt, nodelist);
+			update_job_resource(a_job_res, num_node_attempt, ctrl_id, nodelist);
 		}else {
 			ret = 1;
 		}
 		incre_zht_msg("cswap", 1);
 		xfree(nodelist);
 		dealloc_free_resource(new_free_res);
-		xfree(new_free_res_str);
+		xfree(str_new_free_res);
 	} else {
 		ret = -1;
 	}
@@ -127,30 +143,35 @@ int do_allocate(char *cur_free_res_str, job_resource *a_job_res,
 	return ret;
 }
 
-void allocate_resource(job_resource *a_job_res, int num_more_node)
+void allocate_resource(job_resource *a_job_res, char *ctrl_id, int num_more_node)
 {
-	char *cur_free_res_str = xmalloc((part_size * num_ctrl + 1) * 30);
-	printf("Before doing the look up to allocate resource!\n");
-	c_zht_lookup("number of free node", cur_free_res_str);
-	printf("After doing the lookup, %s\n", cur_free_res_str);
+	char *free_res = xmalloc((part_size + 1) * 30);
+	c_zht_lookup(ctrl_id, free_res);
 	incre_zht_msg("lookup", 1);
-	if (cur_free_res_str == NULL) {
+
+	if (free_res == NULL) {
 		a_job_res->num_try++;
 	}else {
-		char *query_value = xmalloc((part_size * num_ctrl + 1) * 30);
-		int ret = do_allocate(cur_free_res_str, a_job_res, query_value, num_more_node);
+		char *query_value = xmalloc((part_size + 1) * 30);
+		int ret = do_allocate(free_res, ctrl_id, a_job_res, query_value, num_more_node);
 		while (ret == 1) {
-			c_memset(cur_free_res_str, (part_size * num_ctrl + 1) * 30);
-			strcpy(cur_free_res_str, query_value);
-			c_memset(query_value, (part_size * num_ctrl + 1) * 30);
-			ret = do_allocate(cur_free_res_str, a_job_res, query_value, num_more_node);
+			c_memset(free_res, (part_size + 1) * 30);
+			strcpy(free_res, query_value);
+			c_memset(query_value, (part_size + 1) * 30);
+			ret = do_allocate(free_res, ctrl_id, a_job_res, query_value, num_more_node);
 		}
 		if (ret < 0) {
 			a_job_res->num_try++;
-			usleep(a_job_res->sleep_length);
-			a_job_res->sleep_length *= 2;
+			//usleep(a_job_res->sleep_length);
+			//a_job_res->sleep_length *= 2;
+		} else {
+			free_resource *cur_free_res = unpack_free_resource(query_value);
+			pthread_mutex_lock(&global_res_BST_mutex);
+			BST_insert(&(global_res_BST->resource_bst), ctrl_id, cur_free_res->num_free_node);
+			pthread_mutex_unlock(&global_res_BST_mutex);
+			dealloc_free_resource(cur_free_res);
 		}
-		xfree(cur_free_res_str);
+		xfree(free_res);
 		xfree(query_value);
 	}
 }
@@ -158,51 +179,170 @@ void allocate_resource(job_resource *a_job_res, int num_more_node)
 extern job_resource* allocate_job_resource(int num_node_req)
 {
 	job_resource *a_job_res = init_job_resource();
+	char *ctrl_name = self_name;
+	BST *bst = NULL;
+	char *candidate_ctrl = xmalloc(30);
+	int num = -1;
+	pthread_mutex_lock(&global_res_BST_mutex);
+	bst = BST_search_exact(&(global_res_BST->resource_bst), ctrl_name);
+	if (bst != NULL) {
+		strcpy(candidate_ctrl, bst->data);
+		num = bst->num;
+		BST_delete(&(global_res_BST->resource_bst), bst->data, bst->num);
+	}
+	pthread_mutex_unlock(&global_res_BST_mutex);
+
+	while (bst == NULL) {
+		usleep(10000);
+		pthread_mutex_lock(&global_res_BST_mutex);
+		bst = BST_search_best(&(global_res_BST->resource_bst), num_node_req);
+		if (bst != NULL) {
+			c_memset(candidate_ctrl, 30);
+			strcpy(candidate_ctrl, bst->data);
+			num = bst->num;
+			printf("The data is:%s, and the number is:%d\n", bst->data, bst->num);
+			BST_delete(&(global_res_BST->resource_bst), bst->data, bst->num);
+		} else {
+			printf("OK, that is weired!\n");
+			sleep(10);
+		}
+		pthread_mutex_unlock(&global_res_BST_mutex);
+	}
 
 	while (a_job_res->num_node < num_node_req) {
 		printf("OK, keep allocating!\n");
-		allocate_resource(a_job_res, num_node_req - a_job_res->num_node);
+		allocate_resource(a_job_res, candidate_ctrl, num_node_req - a_job_res->num_node);
 		if (a_job_res->num_try > 10) {
 			printf("I have tried more than 10 times!\n");
 			release_job_resource(a_job_res);
 			reset_job_resource(a_job_res);
 			usleep(a_job_res->sleep_length);
 		}
+		pthread_mutex_lock(&global_res_BST_mutex);
+		bst = BST_search_best(&(global_res_BST->resource_bst),
+				num_node_req - a_job_res->num_node);
+		if (bst != NULL) {
+			c_memset(candidate_ctrl, 30);
+			strcpy(candidate_ctrl, bst->data);
+			num = bst->num;
+			BST_delete(&(global_res_BST->resource_bst), bst->data, bst->num);
+		}
+		pthread_mutex_unlock(&global_res_BST_mutex);
+		while (bst == NULL && a_job_res->num_node < num_node_req) {
+			usleep(10000);
+			pthread_mutex_lock(&global_res_BST_mutex);
+			bst = BST_search_best(&(global_res_BST->resource_bst),
+					num_node_req - a_job_res->num_node);
+			if (bst != NULL) {
+				c_memset(candidate_ctrl, 30);
+				strcpy(candidate_ctrl, bst->data);
+				num = bst->num;
+				BST_delete(&(global_res_BST->resource_bst), bst->data, bst->num);
+			}
+			pthread_mutex_unlock(&global_res_BST_mutex);
+		}
 	}
+	xfree(candidate_ctrl);
 	return a_job_res;
+}
+
+job_resource *copy_job_resource(job_resource *a_job_resource)
+{
+	job_resource *b_job_resource = xmalloc(sizeof(job_resource));
+	b_job_resource->job_id = a_job_resource->job_id;
+	printf("The job id is:%u\n", b_job_resource->job_id);
+	b_job_resource->num_ctrl = a_job_resource->num_ctrl;
+	printf("The number of controller is:%d\n", b_job_resource->num_ctrl);
+	b_job_resource->num_node = a_job_resource->num_node;
+	printf("The number of node is:%d\n", b_job_resource->num_node);
+	b_job_resource->num_try = a_job_resource->num_try;
+	printf("The number of retry is:%d\n", b_job_resource->num_try);
+	b_job_resource->sleep_length = a_job_resource->sleep_length;
+	printf("The sleep length is:%d\n", b_job_resource->sleep_length);
+
+	b_job_resource->nodelist = xmalloc(30 * part_size * num_ctrl);
+	strcpy(b_job_resource->nodelist, a_job_resource->nodelist);
+	printf("The node list now is:%s\n", b_job_resource->nodelist);
+	b_job_resource->ctrl_ids = xmalloc_2(num_ctrl, 30);
+	b_job_resource->node_alloc = xmalloc_2(num_ctrl, 30 * part_size);
+	b_job_resource->num_node_indi = xmalloc(sizeof(int) * num_ctrl);
+
+	int i;
+	for (i = 0; i < b_job_resource->num_ctrl; i++) {
+		strcpy(b_job_resource->ctrl_ids[i], a_job_resource->ctrl_ids[i]);
+		printf("The %dth controller is:%s\n", i, b_job_resource->ctrl_ids[i]);
+		strcpy(b_job_resource->node_alloc[i], a_job_resource->node_alloc[i]);
+		printf("The %dth nodes are:%s\n", i, b_job_resource->node_alloc[i]);
+		b_job_resource->num_node_indi[i] = a_job_resource->num_node_indi[i];
+		printf("The %dth number of nodes is:%d\n", i, b_job_resource->num_node_indi[i]);
+	}
+
+	return b_job_resource;
+}
+
+hashtable* lookup(uint32_t key)
+{
+	unsigned int hi = hash(key);
+	hashtable *list = job_hashtable[hi];
+
+	for (; list != NULL; list = list->next) {
+		if (list->key == key) {
+				return list;
+		}
+	}
+
+	return NULL;
+}
+
+int put_record(uint32_t key, job_resource *value)
+{
+	unsigned int hi;
+	hashtable *list;
+	printf("Now, insert job resource to local key-value store:%u, and nodelist is:%s\n", value->job_id, value->nodelist);
+	if ((list = lookup(key)) == NULL) {
+		printf("OK, this is a new key %u and value\n", key);
+		hi = hash(key);
+		list = xmalloc(sizeof(hashtable));
+		if (list == NULL)
+			return 0;
+		list->key = key;
+		list->next = job_hashtable[hi];
+		job_hashtable[hi] = list;
+	} else
+		dealloc_job_resource(list->value);
+	list->value = copy_job_resource(value);
+	if (list->value == NULL)
+		return 0;
+
+	return 1;
 }
 
 extern int insert_job_record(job_resource *a_job_res)
 {
 	if (a_job_res == NULL)
 		return -1;
-	char *str_job_id = xmalloc(20);
-	sprintf(str_job_id, "%u", a_job_res->job_id);
-	char *job_res = xmalloc((a_job_res->num_node + 1) * 30);
-	char *num_node_str = int_to_str(a_job_res->num_node);
-	strcat(job_res, num_node_str);
-	strcat(job_res, ";");
-	strcat(job_res, a_job_res->nodelist);
-
-	int ret = put_recrod(str_job_id, job_res);
-	xfree(str_job_id);
-	xfree(job_res);
-	xfree(num_node_str);
-
+	int ret = put_record(a_job_res->job_id, a_job_res);
 	return ret;
 }
 
 extern void release_job_resource(job_resource *a_job_res)
 {
-	if (a_job_res->num_node > 0) {
-		free_resource *to_be_incre = xmalloc(sizeof(free_resource));
-		to_be_incre->num_free_node = a_job_res->num_node;
-		to_be_incre->free_nodelist = xmalloc_2(to_be_incre->num_free_node, 30);
-		char *nodelist = strdup(a_job_res->nodelist);
-		split_str(nodelist, ",", to_be_incre->free_nodelist);
-		incre_free_resource(to_be_incre);
-		free(nodelist);
-		dealloc_free_resource(to_be_incre);
+	if (a_job_res->num_ctrl > 0) {
+		int i, j;
+		for (i = 0; i < a_job_res->num_ctrl; i++) {
+			free_resource *to_be_incre = xmalloc(sizeof(free_resource));
+			to_be_incre->num_free_node = a_job_res->num_node_indi[i];
+			to_be_incre->free_nodelist = xmalloc_2(to_be_incre->num_free_node, 30);
+			char *p[to_be_incre->num_free_node];
+			char *nodelist = strdup(a_job_res->node_alloc[i]);
+			split_str(nodelist, ",", p);
+			for (j = 0; j < to_be_incre->num_free_node; j++) {
+				strcpy(to_be_incre->free_nodelist[j], p[j]);
+			}
+			free(nodelist);
+			incre_free_resource(a_job_res->ctrl_ids[i], to_be_incre);
+			dealloc_free_resource(to_be_incre);
+		}
 	}
 	//dealloc_job_resource(a_job_res);
 }
@@ -211,7 +351,14 @@ extern void dealloc_job_resource(job_resource *a_job_res)
 {
 	if (a_job_res != NULL) {
 		xfree(a_job_res->nodelist);
-		a_job_res->nodelist = NULL;
+		int i;
+		for (i = 0; i < a_job_res->num_ctrl; i++) {
+			xfree(a_job_res->ctrl_ids[i]);
+			xfree(a_job_res->node_alloc[i]);
+		}
+		xfree(a_job_res->ctrl_ids);
+		xfree(a_job_res->node_alloc);
+		xfree(a_job_res->num_node_indi);
 		xfree(a_job_res);
 		a_job_res = NULL;
     }
@@ -307,28 +454,23 @@ extern void dealloc_free_resource(free_resource *a_resource)
 	}
 }
 
-extern void incre_free_resource(free_resource *to_be_incre)
+extern void incre_free_resource(char *ctrl_id, free_resource *to_be_incre)
 {
-	char *cur_free_res_str = xmalloc((num_ctrl * part_size + 1) * 30);
-	while (1) {
-		c_zht_lookup("number of free node", cur_free_res_str);
-		if (cur_free_res_str != NULL) {
-			incre_zht_msg("lookup", 1);
-			break;
-		}
-		usleep(100);
-	}
+	char *cur_free_res_str = xmalloc((part_size + 1) * 30);
+	c_zht_lookup(ctrl_id, cur_free_res_str);
+	incre_zht_msg("lookup", 1);
+
 	free_resource *cur_free_res = unpack_free_resource(cur_free_res_str);
 	free_resource *new_free_res = merge_resource(cur_free_res, to_be_incre);
 	char *new_free_res_str = pack_free_resource(new_free_res);
-	char *query = xmalloc((num_ctrl * part_size + 1) * 30);
+	char *query = xmalloc((part_size + 1) * 30);
 
 	int num_cswap_msg_local = 1;
 
-	while (c_zht_compare_swap("number of free node",
-			cur_free_res_str, new_free_res_str, query) != 0) {
+	while (c_zht_compare_swap(ctrl_id, cur_free_res_str,
+			new_free_res_str, query) != 0) {
 		num_cswap_msg_local++;
-		c_memset(cur_free_res_str, (num_ctrl * part_size + 1) * 30);
+		c_memset(cur_free_res_str, (part_size + 1) * 30);
 		strcpy(cur_free_res_str, query);
 		dealloc_free_resource(cur_free_res);
 		dealloc_free_resource(new_free_res);
@@ -336,8 +478,16 @@ extern void incre_free_resource(free_resource *to_be_incre)
 		cur_free_res = unpack_free_resource(cur_free_res_str);
 		new_free_res = merge_resource(cur_free_res, to_be_incre);
 		new_free_res_str = pack_free_resource(new_free_res);
-		c_memset(query, (num_ctrl * part_size + 1) * 30);
+		c_memset(query, (part_size + 1) * 30);
 	}
+
+	pthread_mutex_lock(&global_res_BST_mutex);
+	BST *bst = BST_search_exact(&(global_res_BST->resource_bst), ctrl_id);
+	if (bst != NULL)
+		BST_delete(&(global_res_BST->resource_bst), bst->data, bst->num);
+	BST_insert(&(global_res_BST->resource_bst),
+			ctrl_id, new_free_res->num_free_node);
+	pthread_mutex_unlock(&global_res_BST_mutex);
 	xfree(cur_free_res_str);
 	xfree(new_free_res_str);
 	xfree(query);
@@ -354,57 +504,145 @@ extern void init_job_hashtable()
 	}
 }
 
-extern unsigned int hash(char *key)
+extern unsigned int hash(uint32_t key)
 {
 	unsigned int h = 0;
-	for(; *key; key++)
-		h = *key + h * 31;
+	char *str_key = xmalloc(30);
+	sprintf(str_key, "%u", key);
+
+	for(; *str_key; str_key++)
+		h = *str_key + h * 31;
+
+	//xfree(str_key);
 	return h % MAXHASHSIZE;
 }
 
-hashtable* lookup(char *key)
-{
-	unsigned int hi = hash(key);
-	hashtable *list = job_hashtable[hi];
-
-	for (; list != NULL; list = list->next) {
-		if (!strcmp(list->key, key)) {
-				return list;
-		}
-	}
-
-	return NULL;
-}
-
-extern char* get_value(char *key)
+extern job_resource* get_value(uint32_t key)
 {
 	hashtable *list = lookup(key);
 	if (list == NULL)
 		return NULL;
 	else
-		return strdup(list->value);
+	{
+		return list->value;
+	}
 }
 
-extern int put_recrod(char *key, char *value)
+extern void BST_insert(BST **bst, char *data, int num)
 {
-	unsigned int hi;
-	hashtable *list;
+	if (*bst == NULL) {
+		*bst = xmalloc(sizeof(BST));
+		(*bst)->data = xmalloc(30);
+		strcpy((*bst)->data, data);
+		//printf("The data is:%s\n", (*bst)->data);
+		(*bst)->num = num;
+		(*bst)->leftchild = (*bst)->rightchild = NULL;
+	} else if (num < (*bst)->num) {
+		BST_insert(&((*bst)->leftchild), data, num);
+	} else {
+		BST_insert(&((*bst)->rightchild), data, num);
+	}
+}
 
-	if ((list = lookup(key)) == NULL) {
-		hi = hash(key);
-		list = xmalloc(sizeof(hashtable));
-		if (list == NULL)
-			return 0;
-		list->key = strdup(key);
-		if (list->key == NULL)
-			return 0;
-		list->next = job_hashtable[hi];
-		job_hashtable[hi] = list;
-	} else
-		free(list->value);
-	list->value = strdup(value);
-	if (list->value == NULL)
-		return 0;
+extern BST* BST_search_best(BST **bst, int num)
+{
+	if (*bst == NULL) {
+		return NULL;
+	}
 
-	return 1;
+	BST *candidate = *bst;
+	BST *tmp = *bst;
+
+	while (tmp != NULL) {
+		if (tmp->num >= num) {
+			candidate = tmp;
+			tmp = tmp->leftchild;
+		} else {
+			tmp = tmp->rightchild;
+			if (tmp != NULL && candidate->num < tmp->num)
+				candidate = tmp;
+		}
+	}
+
+	return candidate;
+}
+
+extern BST* BST_search_exact(BST **bst, char *data)
+{
+	if (*bst == NULL)
+		return NULL;
+
+	if (!strcmp((*bst)->data, data))
+		return *bst;
+
+	BST *candidate = BST_search_exact(&((*bst)->leftchild), data);
+	if (candidate == NULL)
+		return BST_search_exact(&((*bst)->rightchild), data);
+	else
+		return candidate;
+}
+
+BST *findMAX(BST **bst)
+{
+	if (*bst == NULL)
+		return NULL;
+	BST *tmp = *bst;
+	while (tmp->rightchild != NULL)
+		tmp = tmp->rightchild;
+	return tmp;
+}
+
+extern BST* BST_delete(BST **bst, char *data, int num)
+{
+	BST *tmp;
+	if (*bst == NULL)
+		return NULL;
+	if ((*bst)->num > num)
+		(*bst)->leftchild = BST_delete(&((*bst)->leftchild), data, num);
+	else if ((*bst)->num < num)
+		(*bst)->rightchild = BST_delete(&((*bst)->rightchild), data, num);
+	else if (strcmp((*bst)->data, data)) {
+		(*bst)->rightchild = BST_delete(&((*bst)->rightchild), data, num);
+	} else {
+		if ((*bst)->rightchild && (*bst)->leftchild) {
+			tmp = findMAX(&((*bst)->leftchild));
+			memset((*bst)->data, '\0', 30);
+			strcpy((*bst)->data, tmp->data);
+			(*bst)->num = tmp->num;
+			(*bst)->leftchild = BST_delete(
+					&((*bst)->leftchild), tmp->data, tmp->num);
+		} else {
+			tmp = *bst;
+			if ((*bst)->leftchild == NULL)
+				*bst = (*bst)->rightchild;
+			else if ((*bst)->rightchild == NULL)
+				*bst = (*bst)->leftchild;
+			xfree(tmp->data);
+			xfree(tmp);
+		}
+	}
+	return *bst;
+}
+
+extern void BST_delete_all(BST **bst)
+{
+	if (*bst == NULL)
+		return;
+	BST_delete_all(&((*bst)->leftchild));
+	BST_delete_all(&((*bst)->rightchild));
+	if ((*bst)->leftchild == NULL && (*bst)->rightchild == NULL) {
+		xfree((*bst)->data);
+		xfree(*bst);
+		*bst = NULL;
+	}
+}
+
+extern void BST_print_all(BST **bst)
+{
+	if (*bst) {
+		BST_print_all(&((*bst)->leftchild));
+		printf("The data is:%s\n", (*bst)->data);
+		printf("The number is%d\n", (*bst)->num);
+		BST_print_all(&((*bst)->rightchild));
+	}
 }

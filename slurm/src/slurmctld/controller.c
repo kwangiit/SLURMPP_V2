@@ -177,20 +177,25 @@ int   sched_interval = 60;
 int   slurmctld_primary = 1;
 
 /* Global variables and mutex added for SLURM++ */
-char *zht_cfg_file = NULL;
-char *zht_mem_file = NULL;
+char *zht_cfg_file = NULL;	/* zht configure file*/
+char *zht_mem_file = NULL;	/* zht memberlist file*/
 
-int part_size = 1;
-int num_ctrl = 1;
-char **source = NULL;
+int part_size = 1;	/* partition size*/
+int num_ctrl = 1;	/* number of controllers/partitions*/
+char **source = NULL;	/* all the registered slurmds*/
 
-int self_index = -1;
-char *str_self_index = NULL;
+char *mem_list_file = NULL;	/* controller memberlist file*/
+char **mem_list = NULL;	/* controller memberlist */
 
-int num_regist_recv = 0;
-int num_job_recv = 0;
-bool ready = false;
+int self_index = -1;	/* self index of this controller */
+char *str_self_index = NULL; /* self index in string */
+char *self_name = NULL;	/* name of this controller */
 
+int num_regist_recv = 0;	/* number of registered slurmd received */
+int num_job_recv = 0;	/* number of jobs received */
+bool ready = false;	/* identify if it is ready for a controller to handle jobs*/
+
+/* counters for recording zht messages */
 long long num_insert_msg = 0LL;
 long long num_lookup_msg = 0LL;
 long long num_cswap_msg = 0LL;
@@ -202,6 +207,9 @@ pthread_mutex_t insert_msg_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t lookup_msg_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t cswap_msg_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t callback_msg_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+resource_BST *global_res_BST = NULL;	/* the weakly consistent global resource */
+pthread_mutex_t global_res_BST_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /* Next used for stats/diagnostics */
 diag_stats_t slurmctld_diag_stats;
@@ -261,14 +269,14 @@ inline static void  _usage(char *prog_name);
 static bool         _valid_controller(void);
 static bool         _wait_for_server_thread(void);
 
-static void *      _record_zht_msg_thread(void *arg);
-
 time_t last_proc_req_start = 0;
 time_t next_stats_reset = 0;
 
 /* Added functions for SLURM++ */
 void _init_ctrl(void);
-void _read_memlist(char*);
+static void *      _record_zht_msg_thread(void *arg);
+static void *      _monitoring(void *arg);
+static void *      _update_global_resource(void *arg);
 
 /* main - slurmctld main function, start various threads and process RPCs */
 int main(int argc, char *argv[])
@@ -466,6 +474,20 @@ int main(int argc, char *argv[])
 
 	pthread_t record_thread;
 	while (pthread_create(&record_thread, NULL, _record_zht_msg_thread, NULL)) {
+		error("pthread_create error %m");
+		sleep(1);
+	}
+
+	if (self_index == 0) {
+		pthread_t monitoring_thread;
+		while (pthread_create(&monitoring_thread, NULL, _monitoring, NULL)) {
+			error("pthread_create error %m");
+			sleep(1);
+		}
+	}
+
+	pthread_t updating_thread;
+	while (pthread_create(&updating_thread, NULL, _update_global_resource, NULL)) {
 		error("pthread_create error %m");
 		sleep(1);
 	}
@@ -1941,7 +1963,7 @@ static void _parse_commandline(int argc, char *argv[])
 	bool bg_recover_override = 0;
 
 	opterr = 0;
-	while ((c = getopt(argc, argv, "BcC:dDf:hi:L:n:p:rRvVz:Z:")) != -1)
+	while ((c = getopt(argc, argv, "BcC:dDf:hi:L:m:n:p:rRvVz:Z:")) != -1)
 		switch (c) {
 		case 'B':
 			bg_recover = 0;
@@ -1972,6 +1994,9 @@ static void _parse_commandline(int argc, char *argv[])
 			break;
 		case 'L':
 			debug_logfile = xstrdup(optarg);
+			break;
+		case 'm':
+			mem_list_file = xstrdup(optarg);
 			break;
 		case 'n':
 			new_nice = strtol(optarg, &tmp_char, 10);
@@ -2527,31 +2552,118 @@ static void  _set_work_dir(void)
 void _init_ctrl()
 {
 	source = xmalloc_2(part_size, 30);
+
 	c_zht_init(zht_cfg_file, zht_mem_file);
-	if (self_index == 0)
-	{
-		c_zht_insert("number of free node", "0;");
-		incre_zht_msg("insert", 1);
+
+	str_self_index = int_to_str(self_index);
+	self_name = strdup(slurmctld_conf.control_machine);
+
+	mem_list = xmalloc_2(num_ctrl, 30);
+	int i = 0;
+	size_t ln = 0;
+	FILE *file = fopen(mem_list_file, "r");
+	if (file != NULL) {
+		char line[100];
+		while (fgets(line, sizeof(line), file) != NULL) {
+			ln = strlen(line);
+			if (line[ln - 1] == '\n')
+				line[ln - 1] = '\0';
+			strcpy(mem_list[i++], line);
+		}
 	}
-	str_self_index = xmalloc(20);
-	sprintf(str_self_index, "%d", self_index);
+
+	global_res_BST = xmalloc(sizeof(resource_BST));
+	global_res_BST->num_part = num_ctrl;
+	global_res_BST->num_free_nodes = num_ctrl * part_size;
+	global_res_BST->resource_bst = NULL;
 }
 
 static void* _record_zht_msg_thread(void *arg)
 {
 	char *record_path = xmalloc(100);
-	strcat(record_path, "/users/kwangiit/slurmpp_v2/output/zht_msg/msg_record_");
-	char *str_self_idx = xmalloc(20);
-	sprintf(str_self_idx, "%d", self_index);
-	strcat(record_path, str_self_idx);
-	xfree(str_self_idx);
+	strcat(record_path, "/home/kwang/Documents/summer_lanl_2014/output/zht_msg/msg_record_");
+	strcat(record_path, str_self_index);
 	FILE *fp = fopen(record_path, "w+");
-
+	xfree(record_path);
 	fprintf(fp, "insert_msg_count\tlookup_msg_count\tcswap_msg_count\tnum_jobs_recv\n");
 	while (1) {
 		fprintf(fp, "%lld\t%lld\t%lld\t%d\n", num_insert_msg, num_lookup_msg, num_cswap_msg, num_job_recv);
 		fflush(fp);
 		sleep(1);
+	}
+
+	pthread_exit(NULL);
+	return NULL;
+}
+
+static void* _monitoring(void *arg)
+{
+	char *global_resource_key = "global resource specification";
+	int i;
+	char *ctrl_resource = xmalloc((part_size + 1) * 30);
+	char *global_resource_value = xmalloc(num_ctrl * 50);
+
+	while (!ready) {
+		usleep(10);
+	}
+	sleep(30);
+
+	while (1) {
+		c_memset(global_resource_value, num_ctrl * 50);
+		for (i = 0; i < num_ctrl; i++) {
+			c_memset(ctrl_resource, (part_size + 1) * 30);
+			//printf("The controller id is:%s\n", mem_list[i]);
+			c_zht_lookup(mem_list[i], ctrl_resource);
+			//printf("The controller resource is:%s\n", ctrl_resource);
+			free_resource *cur_free_resource = unpack_free_resource(ctrl_resource);
+			char *str_num_node = int_to_str(cur_free_resource->num_free_node);
+			strcat(global_resource_value, mem_list[i]);
+			strcat(global_resource_value, ";");
+			strcat(global_resource_value, str_num_node);
+			if (i != num_ctrl - 1) {
+				strcat(global_resource_value, "?");
+			}
+			xfree(str_num_node);
+			dealloc_free_resource(cur_free_resource);
+		}
+		//printf("The global resource value to be inserted is:%s\n", global_resource_value);
+		c_zht_insert(global_resource_key, global_resource_value);
+		usleep(10000);
+	}
+
+	pthread_exit(NULL);
+	return NULL;
+}
+
+static void* _update_global_resource(void *arg)
+{
+	char *global_resource_key = "global resource specification";
+	char *global_resource_value = xmalloc(num_ctrl * 50);
+	int i;
+
+	while (!ready) {
+		usleep(10);
+	}
+	sleep(35);
+
+	while (1) {
+		c_memset(global_resource_value, num_ctrl * 50);
+		c_zht_lookup(global_resource_key, global_resource_value);
+		char *global_resource_value_copy = strdup(global_resource_value);
+		//printf("The global resource value is:%s\n", global_resource_value_copy);
+		char *p[num_ctrl];
+		split_str(global_resource_value_copy, "?", p);
+		pthread_mutex_lock(&global_res_BST_mutex);
+		BST_delete_all(&(global_res_BST->resource_bst));
+		for (i = 0; i < num_ctrl; i++) {
+			char *pp[2];
+			split_str(p[i], ";", pp);
+			int num = str_to_int(pp[1]);
+			BST_insert(&(global_res_BST->resource_bst), pp[0], num);
+		}
+		pthread_mutex_unlock(&global_res_BST_mutex);
+		free(global_resource_value_copy);
+		usleep(20000);
 	}
 
 	pthread_exit(NULL);

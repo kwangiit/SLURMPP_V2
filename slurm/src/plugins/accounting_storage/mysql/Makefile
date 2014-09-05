@@ -116,9 +116,9 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(pkglibdir)"
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
-accounting_storage_mysql_la_DEPENDENCIES = $(top_builddir)/src/database/libslurm_mysql.la \
-	$(am__DEPENDENCIES_1) \
-	../common/libaccounting_storage_common.la
+#accounting_storage_mysql_la_DEPENDENCIES = $(top_builddir)/src/database/libslurm_mysql.la \
+#	$(am__DEPENDENCIES_1) \
+#	../common/libaccounting_storage_common.la
 am__accounting_storage_mysql_la_SOURCES_DIST =  \
 	accounting_storage_mysql.c accounting_storage_mysql.h \
 	as_mysql_acct.c as_mysql_acct.h as_mysql_archive.c \
@@ -149,8 +149,8 @@ am__objects_1 =  \
 	accounting_storage_mysql_la-as_mysql_usage.lo \
 	accounting_storage_mysql_la-as_mysql_user.lo \
 	accounting_storage_mysql_la-as_mysql_wckey.lo
-am_accounting_storage_mysql_la_OBJECTS =  \
-	$(am__objects_1)
+#am_accounting_storage_mysql_la_OBJECTS =  \
+#	$(am__objects_1)
 am__EXTRA_accounting_storage_mysql_la_SOURCES_DIST =  \
 	accounting_storage_mysql.c accounting_storage_mysql.h \
 	as_mysql_acct.c as_mysql_acct.h as_mysql_archive.c \
@@ -170,8 +170,8 @@ accounting_storage_mysql_la_LINK = $(LIBTOOL) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(accounting_storage_mysql_la_CFLAGS) $(CFLAGS) \
 	$(accounting_storage_mysql_la_LDFLAGS) $(LDFLAGS) -o $@
-am_accounting_storage_mysql_la_rpath = -rpath \
-	$(pkglibdir)
+#am_accounting_storage_mysql_la_rpath = -rpath \
+#	$(pkglibdir)
 DEFAULT_INCLUDES = -I. -I$(top_builddir) -I$(top_builddir)/slurm
 depcomp = $(SHELL) $(top_srcdir)/auxdir/depcomp
 am__depfiles_maybe = depfiles
@@ -192,15 +192,15 @@ DIST_SOURCES = $(am__accounting_storage_mysql_la_SOURCES_DIST) \
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /users/kwangiit/slurmpp_v2/slurm/auxdir/missing --run aclocal-1.11
+ACLOCAL = ${SHELL} /home/kwang/Documents/backup/Documents/summer_lanl_2014/slurm++_v3/slurm/auxdir/missing --run aclocal-1.11
 AMTAR = $${TAR-tar}
 AR = ar
 AUTHD_CFLAGS = 
 AUTHD_LIBS = -lauth -le
-AUTOCONF = ${SHELL} /users/kwangiit/slurmpp_v2/slurm/auxdir/missing --run autoconf
-AUTOHEADER = ${SHELL} /users/kwangiit/slurmpp_v2/slurm/auxdir/missing --run autoheader
-AUTOMAKE = ${SHELL} /users/kwangiit/slurmpp_v2/slurm/auxdir/missing --run automake-1.11
-AWK = gawk
+AUTOCONF = ${SHELL} /home/kwang/Documents/backup/Documents/summer_lanl_2014/slurm++_v3/slurm/auxdir/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/kwang/Documents/backup/Documents/summer_lanl_2014/slurm++_v3/slurm/auxdir/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/kwang/Documents/backup/Documents/summer_lanl_2014/slurm++_v3/slurm/auxdir/missing --run automake-1.11
+AWK = mawk
 BGL_LOADED = 
 BGQ_LOADED = 
 BG_INCLUDES = 
@@ -228,9 +228,9 @@ CRAY_SWITCH_LDFLAGS =
 CRAY_TASK_CPPFLAGS = 
 CRAY_TASK_LDFLAGS = 
 CXX = g++
-CXXCPP = g++ -E
-CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -g -O2
+CXXCPP = 
+CXXDEPMODE = depmode=none
+CXXFLAGS = 
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
@@ -247,18 +247,18 @@ FGREP = /bin/grep -F
 FREEIPMI_CPPFLAGS = 
 FREEIPMI_LDFLAGS = 
 FREEIPMI_LIBS = 
-GLIB_CFLAGS = -pthread -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include  
-GLIB_COMPILE_RESOURCES = /usr/lib/x86_64-linux-gnu/glib-2.0/glib-compile-resources
-GLIB_GENMARSHAL = glib-genmarshal
-GLIB_LIBS = -pthread -lgthread-2.0 -lrt -lglib-2.0  
-GLIB_MKENUMS = glib-mkenums
-GOBJECT_QUERY = gobject-query
+GLIB_CFLAGS = 
+GLIB_COMPILE_RESOURCES = 
+GLIB_GENMARSHAL = 
+GLIB_LIBS = 
+GLIB_MKENUMS = 
+GOBJECT_QUERY = 
 GREP = /bin/grep
-GTK_CFLAGS = -pthread -I/usr/include/gtk-2.0 -I/usr/lib/x86_64-linux-gnu/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/pango-1.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng12  
-GTK_LIBS = -pthread -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lgio-2.0 -lpangoft2-1.0 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lcairo -lpango-1.0 -lfreetype -lfontconfig -lgobject-2.0 -lgthread-2.0 -lrt -lglib-2.0  
+GTK_CFLAGS = 
+GTK_LIBS = 
 H5CC = 
 H5FC = 
-HAVEMYSQLCONFIG = /usr/bin/mysql_config
+HAVEMYSQLCONFIG = no
 HAVE_AIX = no
 HAVE_MAN2HTML = 
 HAVE_NRT = 
@@ -291,16 +291,16 @@ LIPO =
 LN_S = ln -s
 LTLIBOBJS = 
 MAINT = #
-MAKEINFO = ${SHELL} /users/kwangiit/slurmpp_v2/slurm/auxdir/missing --run makeinfo
+MAKEINFO = ${SHELL} /home/kwang/Documents/backup/Documents/summer_lanl_2014/slurm++_v3/slurm/auxdir/missing --run makeinfo
 MANIFEST_TOOL = :
 MKDIR_P = /bin/mkdir -p
 MUNGE_CPPFLAGS = 
 MUNGE_DIR = 
 MUNGE_LDFLAGS = 
 MUNGE_LIBS = 
-MYSQL_CFLAGS = -I/usr/include/mysql -DBIG_JOINS=1  -fno-strict-aliasing  -g
-MYSQL_LIBS = -L/usr/lib/x86_64-linux-gnu -lmysqlclient_r -lpthread -lz -lm -lrt -ldl
-NCURSES = -lncurses
+MYSQL_CFLAGS = 
+MYSQL_LIBS = 
+NCURSES = 
 NM = /usr/bin/nm -B
 NMEDIT = 
 NRT_CPPFLAGS = 
@@ -362,17 +362,17 @@ SLURM_VERSION_STRING = 14.11.0-pre1
 SO_LDFLAGS = 
 SSL_CPPFLAGS = 
 SSL_LDFLAGS = 
-SSL_LIBS = -lcrypto
+SSL_LIBS = 
 STRIP = strip
 UTIL_LIBS = -lutil
 VERSION = 14.11
-abs_builddir = /users/kwangiit/slurmpp_v2/slurm/src/plugins/accounting_storage/mysql
-abs_srcdir = /users/kwangiit/slurmpp_v2/slurm/src/plugins/accounting_storage/mysql
-abs_top_builddir = /users/kwangiit/slurmpp_v2/slurm
-abs_top_srcdir = /users/kwangiit/slurmpp_v2/slurm
+abs_builddir = /home/kwang/Documents/backup/Documents/summer_lanl_2014/slurm++_v3/slurm/src/plugins/accounting_storage/mysql
+abs_srcdir = /home/kwang/Documents/backup/Documents/summer_lanl_2014/slurm++_v3/slurm/src/plugins/accounting_storage/mysql
+abs_top_builddir = /home/kwang/Documents/backup/Documents/summer_lanl_2014/slurm++_v3/slurm
+abs_top_srcdir = /home/kwang/Documents/backup/Documents/summer_lanl_2014/slurm++_v3/slurm
 ac_ct_AR = ar
 ac_ct_CC = gcc
-ac_ct_CXX = g++
+ac_ct_CXX = 
 ac_ct_DUMPBIN = 
 ac_have_man2html = no
 am__include = include
@@ -401,7 +401,7 @@ host_vendor = unknown
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /users/kwangiit/slurmpp_v2/slurm/auxdir/install-sh
+install_sh = ${SHELL} /home/kwang/Documents/backup/Documents/summer_lanl_2014/slurm++_v3/slurm/auxdir/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -412,7 +412,7 @@ mandir = ${datarootdir}/man
 mkdir_p = /bin/mkdir -p
 oldincludedir = /usr/include
 pdfdir = ${docdir}
-prefix = /users/kwangiit/slurmpp_v2/install
+prefix = /usr/local
 program_transform_name = s,x,x,
 psdir = ${docdir}
 sbindir = ${exec_prefix}/sbin
@@ -447,17 +447,17 @@ AS_MYSQL_SOURCES = accounting_storage_mysql.c accounting_storage_mysql.h \
 		as_mysql_user.c as_mysql_user.h \
 		as_mysql_wckey.c as_mysql_wckey.h
 
-pkglib_LTLIBRARIES = accounting_storage_mysql.la
+#pkglib_LTLIBRARIES = accounting_storage_mysql.la
 
 # Mysql storage plugin.
-accounting_storage_mysql_la_SOURCES = $(AS_MYSQL_SOURCES)
-accounting_storage_mysql_la_LDFLAGS = $(SO_LDFLAGS) $(PLUGIN_FLAGS)
-accounting_storage_mysql_la_CFLAGS = $(MYSQL_CFLAGS)
-accounting_storage_mysql_la_LIBADD = \
-	$(top_builddir)/src/database/libslurm_mysql.la $(MYSQL_LIBS) \
-	../common/libaccounting_storage_common.la
+#accounting_storage_mysql_la_SOURCES = $(AS_MYSQL_SOURCES)
+#accounting_storage_mysql_la_LDFLAGS = $(SO_LDFLAGS) $(PLUGIN_FLAGS)
+#accounting_storage_mysql_la_CFLAGS = $(MYSQL_CFLAGS)
+#accounting_storage_mysql_la_LIBADD = \
+#	$(top_builddir)/src/database/libslurm_mysql.la $(MYSQL_LIBS) \
+#	../common/libaccounting_storage_common.la
 
-#EXTRA_accounting_storage_mysql_la_SOURCES = $(AS_MYSQL_SOURCES)
+EXTRA_accounting_storage_mysql_la_SOURCES = $(AS_MYSQL_SOURCES)
 all: all-am
 
 .SUFFIXES:
@@ -895,9 +895,9 @@ uninstall-am: uninstall-pkglibLTLIBRARIES
 	tags uninstall uninstall-am uninstall-pkglibLTLIBRARIES
 
 
-force:
-$(accounting_storage_mysql_la_LIBADD) : force
-	@cd `dirname $@` && $(MAKE) `basename $@`
+#force:
+#$(accounting_storage_mysql_la_LIBADD) : force
+#	@cd `dirname $@` && $(MAKE) `basename $@`
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

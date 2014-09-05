@@ -23,19 +23,19 @@
 #define DEBUGGER_PARTIAL_ATTACH 1
 
 /* Define to 1 if using glib-2.32.0 or higher */
-#define GLIB_NEW_THREADS 1
+/* #undef GLIB_NEW_THREADS */
 
 /* Define to 1 if licensed under terms of the GNU General Public License. */
 #define GPL_LICENSED 1
 
 /* Define to 1 if using gtk+-2.14.0 or higher */
-#define GTK2_USE_GET_FOCUS 1
+/* #undef GTK2_USE_GET_FOCUS */
 
 /* Define to 1 if using gtk+-2.10.0 or higher */
-#define GTK2_USE_RADIO_SET 1
+/* #undef GTK2_USE_RADIO_SET */
 
 /* Define to 1 if using gtk+-2.12.0 or higher */
-#define GTK2_USE_TOOLTIP 1
+/* #undef GTK2_USE_TOOLTIP */
 
 /* Make sure we get the 1.8 HDF5 API */
 #define H5_NO_DEPRECATED_SYMBOLS 1
@@ -89,7 +89,7 @@
 /* #undef HAVE_CRAY_NETWORK */
 
 /* Define to 1 if you have the <curses.h> header file. */
-#define HAVE_CURSES_H 1
+/* #undef HAVE_CURSES_H */
 
 /* Define to 1 if you have the declaration of `hstrerror', and to 0 if you
    don't. */
@@ -117,7 +117,7 @@
 #define HAVE_ERRNO_H 1
 
 /* Define to 1 if function EVP_MD_CTX_cleanup exists. */
-#define HAVE_EVP_MD_CTX_CLEANUP 1
+/* #undef HAVE_EVP_MD_CTX_CLEANUP */
 
 /* Define to 1 if you have the `fdatasync' function. */
 #define HAVE_FDATASYNC 1
@@ -184,7 +184,7 @@
 #define HAVE_MTRACE 1
 
 /* Define to 1 if using MySQL libaries */
-#define HAVE_MYSQL 1
+/* #undef HAVE_MYSQL */
 
 /* Define to 1 for running on a Cray in native mode without ALPS */
 /* #undef HAVE_NATIVE_CRAY */
@@ -193,7 +193,7 @@
 /* #undef HAVE_NATIVE_CRAY_GA */
 
 /* Define to 1 if you have the <ncurses.h> header file. */
-#define HAVE_NCURSES_H 1
+/* #undef HAVE_NCURSES_H */
 
 /* Define to 1 if you have the <netdb.h> header file. */
 #define HAVE_NETDB_H 1
@@ -211,7 +211,7 @@
 /* #undef HAVE_OFED_PMA_QUERY_VIA */
 
 /* define if you have openssl. */
-#define HAVE_OPENSSL 1
+/* #undef HAVE_OPENSSL */
 
 /* define if you have the PAM library */
 /* #undef HAVE_PAM */
@@ -241,7 +241,7 @@
 #define HAVE_PTHREAD_H 1
 
 /* Have PTHREAD_PRIO_INHERIT. */
-/* #undef HAVE_PTHREAD_PRIO_INHERIT */
+#define HAVE_PTHREAD_PRIO_INHERIT 1
 
 /* Define to 1 if you have the `ptrace64' function. */
 /* #undef HAVE_PTRACE64 */
@@ -358,7 +358,7 @@
 #define HAVE_SYS_WAIT_H 1
 
 /* Define to 1 if you have the <termcap.h> header file. */
-#define HAVE_TERMCAP_H 1
+/* #undef HAVE_TERMCAP_H */
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #define HAVE_UNISTD_H 1
@@ -499,7 +499,7 @@
 #define SLURM_MINOR "11"
 
 /* Define Slurm installation prefix */
-#define SLURM_PREFIX "/users/kwangiit/slurmpp_v2/install"
+#define SLURM_PREFIX "/usr/local"
 
 /* Define to 1 if running slurm simulator */
 /* #undef SLURM_SIMULATOR */

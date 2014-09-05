@@ -768,7 +768,11 @@ extern int num_ctrl;
 
 extern int self_index;
 extern char *str_self_index;
+extern char *self_name;
 extern char **source;
+
+extern char *mem_list_file;
+extern char **mem_list;
 
 extern int num_regist_recv;
 extern bool ready;
@@ -785,6 +789,8 @@ extern pthread_mutex_t insert_msg_mutex;
 extern pthread_mutex_t lookup_msg_mutex;
 extern pthread_mutex_t cswap_msg_mutex;
 extern pthread_mutex_t callback_msg_mutex;
+
+extern pthread_mutex_t global_res_BST_mutex;
 /*****************************************************************************\
  *  Global slurmctld functions
 \*****************************************************************************/

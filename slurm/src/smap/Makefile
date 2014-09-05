@@ -42,9 +42,9 @@ POST_UNINSTALL = :
 build_triplet = x86_64-unknown-linux-gnu
 host_triplet = x86_64-unknown-linux-gnu
 target_triplet = x86_64-unknown-linux-gnu
-bin_PROGRAMS = smap$(EXEEXT)
-#am__append_1 = $(bg_dir)/libconfigure_api.la
-#am__append_2 = configure_functions.c
+#bin_PROGRAMS = smap$(EXEEXT)
+##am__append_1 = $(bg_dir)/libconfigure_api.la
+##am__append_2 = configure_functions.c
 subdir = src/smap
 DIST_COMMON = $(am__noinst_HEADERS_DIST) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
@@ -100,21 +100,21 @@ PROGRAMS = $(bin_PROGRAMS)
 am__smap_SOURCES_DIST = smap.c job_functions.c partition_functions.c \
 	grid_functions.c reservation_functions.c opts.c \
 	configure_functions.c
-#am__objects_1 = configure_functions.$(OBJEXT)
-am_smap_OBJECTS = smap.$(OBJEXT) \
-	job_functions.$(OBJEXT) \
-	partition_functions.$(OBJEXT) \
-	grid_functions.$(OBJEXT) \
-	reservation_functions.$(OBJEXT) \
-	opts.$(OBJEXT) $(am__objects_1)
+##am__objects_1 = configure_functions.$(OBJEXT)
+#am_smap_OBJECTS = smap.$(OBJEXT) \
+#	job_functions.$(OBJEXT) \
+#	partition_functions.$(OBJEXT) \
+#	grid_functions.$(OBJEXT) \
+#	reservation_functions.$(OBJEXT) \
+#	opts.$(OBJEXT) $(am__objects_1)
 am__EXTRA_smap_SOURCES_DIST = smap.h smap.c job_functions.c \
 	partition_functions.c configure_functions.c grid_functions.c \
 	reservation_functions.c opts.c
 smap_OBJECTS = $(am_smap_OBJECTS)
 am__DEPENDENCIES_1 =
-smap_DEPENDENCIES =  \
-	$(top_builddir)/src/api/libslurm.o \
-	$(am__DEPENDENCIES_1) $(am__append_1)
+#smap_DEPENDENCIES =  \
+#	$(top_builddir)/src/api/libslurm.o \
+#	$(am__DEPENDENCIES_1) $(am__append_1)
 smap_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(smap_LDFLAGS) \
 	$(LDFLAGS) -o $@
@@ -138,15 +138,15 @@ HEADERS = $(noinst_HEADERS)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /users/kwangiit/slurmpp_v2/slurm/auxdir/missing --run aclocal-1.11
+ACLOCAL = ${SHELL} /home/kwang/Documents/backup/Documents/summer_lanl_2014/slurm++_v3/slurm/auxdir/missing --run aclocal-1.11
 AMTAR = $${TAR-tar}
 AR = ar
 AUTHD_CFLAGS = 
 AUTHD_LIBS = -lauth -le
-AUTOCONF = ${SHELL} /users/kwangiit/slurmpp_v2/slurm/auxdir/missing --run autoconf
-AUTOHEADER = ${SHELL} /users/kwangiit/slurmpp_v2/slurm/auxdir/missing --run autoheader
-AUTOMAKE = ${SHELL} /users/kwangiit/slurmpp_v2/slurm/auxdir/missing --run automake-1.11
-AWK = gawk
+AUTOCONF = ${SHELL} /home/kwang/Documents/backup/Documents/summer_lanl_2014/slurm++_v3/slurm/auxdir/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/kwang/Documents/backup/Documents/summer_lanl_2014/slurm++_v3/slurm/auxdir/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/kwang/Documents/backup/Documents/summer_lanl_2014/slurm++_v3/slurm/auxdir/missing --run automake-1.11
+AWK = mawk
 BGL_LOADED = 
 BGQ_LOADED = 
 BG_INCLUDES = 
@@ -174,9 +174,9 @@ CRAY_SWITCH_LDFLAGS =
 CRAY_TASK_CPPFLAGS = 
 CRAY_TASK_LDFLAGS = 
 CXX = g++
-CXXCPP = g++ -E
-CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -g -O2
+CXXCPP = 
+CXXDEPMODE = depmode=none
+CXXFLAGS = 
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
@@ -193,18 +193,18 @@ FGREP = /bin/grep -F
 FREEIPMI_CPPFLAGS = 
 FREEIPMI_LDFLAGS = 
 FREEIPMI_LIBS = 
-GLIB_CFLAGS = -pthread -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include  
-GLIB_COMPILE_RESOURCES = /usr/lib/x86_64-linux-gnu/glib-2.0/glib-compile-resources
-GLIB_GENMARSHAL = glib-genmarshal
-GLIB_LIBS = -pthread -lgthread-2.0 -lrt -lglib-2.0  
-GLIB_MKENUMS = glib-mkenums
-GOBJECT_QUERY = gobject-query
+GLIB_CFLAGS = 
+GLIB_COMPILE_RESOURCES = 
+GLIB_GENMARSHAL = 
+GLIB_LIBS = 
+GLIB_MKENUMS = 
+GOBJECT_QUERY = 
 GREP = /bin/grep
-GTK_CFLAGS = -pthread -I/usr/include/gtk-2.0 -I/usr/lib/x86_64-linux-gnu/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/pango-1.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng12  
-GTK_LIBS = -pthread -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lgio-2.0 -lpangoft2-1.0 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lcairo -lpango-1.0 -lfreetype -lfontconfig -lgobject-2.0 -lgthread-2.0 -lrt -lglib-2.0  
+GTK_CFLAGS = 
+GTK_LIBS = 
 H5CC = 
 H5FC = 
-HAVEMYSQLCONFIG = /usr/bin/mysql_config
+HAVEMYSQLCONFIG = no
 HAVE_AIX = no
 HAVE_MAN2HTML = 
 HAVE_NRT = 
@@ -237,16 +237,16 @@ LIPO =
 LN_S = ln -s
 LTLIBOBJS = 
 MAINT = #
-MAKEINFO = ${SHELL} /users/kwangiit/slurmpp_v2/slurm/auxdir/missing --run makeinfo
+MAKEINFO = ${SHELL} /home/kwang/Documents/backup/Documents/summer_lanl_2014/slurm++_v3/slurm/auxdir/missing --run makeinfo
 MANIFEST_TOOL = :
 MKDIR_P = /bin/mkdir -p
 MUNGE_CPPFLAGS = 
 MUNGE_DIR = 
 MUNGE_LDFLAGS = 
 MUNGE_LIBS = 
-MYSQL_CFLAGS = -I/usr/include/mysql -DBIG_JOINS=1  -fno-strict-aliasing  -g
-MYSQL_LIBS = -L/usr/lib/x86_64-linux-gnu -lmysqlclient_r -lpthread -lz -lm -lrt -ldl
-NCURSES = -lncurses
+MYSQL_CFLAGS = 
+MYSQL_LIBS = 
+NCURSES = 
 NM = /usr/bin/nm -B
 NMEDIT = 
 NRT_CPPFLAGS = 
@@ -308,17 +308,17 @@ SLURM_VERSION_STRING = 14.11.0-pre1
 SO_LDFLAGS = 
 SSL_CPPFLAGS = 
 SSL_LDFLAGS = 
-SSL_LIBS = -lcrypto
+SSL_LIBS = 
 STRIP = strip
 UTIL_LIBS = -lutil
 VERSION = 14.11
-abs_builddir = /users/kwangiit/slurmpp_v2/slurm/src/smap
-abs_srcdir = /users/kwangiit/slurmpp_v2/slurm/src/smap
-abs_top_builddir = /users/kwangiit/slurmpp_v2/slurm
-abs_top_srcdir = /users/kwangiit/slurmpp_v2/slurm
+abs_builddir = /home/kwang/Documents/backup/Documents/summer_lanl_2014/slurm++_v3/slurm/src/smap
+abs_srcdir = /home/kwang/Documents/backup/Documents/summer_lanl_2014/slurm++_v3/slurm/src/smap
+abs_top_builddir = /home/kwang/Documents/backup/Documents/summer_lanl_2014/slurm++_v3/slurm
+abs_top_srcdir = /home/kwang/Documents/backup/Documents/summer_lanl_2014/slurm++_v3/slurm
 ac_ct_AR = ar
 ac_ct_CC = gcc
-ac_ct_CXX = g++
+ac_ct_CXX = 
 ac_ct_DUMPBIN = 
 ac_have_man2html = no
 am__include = include
@@ -347,7 +347,7 @@ host_vendor = unknown
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /users/kwangiit/slurmpp_v2/slurm/auxdir/install-sh
+install_sh = ${SHELL} /home/kwang/Documents/backup/Documents/summer_lanl_2014/slurm++_v3/slurm/auxdir/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -358,7 +358,7 @@ mandir = ${datarootdir}/man
 mkdir_p = /bin/mkdir -p
 oldincludedir = /usr/include
 pdfdir = ${docdir}
-prefix = /users/kwangiit/slurmpp_v2/install
+prefix = /usr/local
 program_transform_name = s,x,x,
 psdir = ${docdir}
 sbindir = ${exec_prefix}/sbin
@@ -375,21 +375,21 @@ top_builddir = ../..
 top_srcdir = ../..
 AUTOMAKE_OPTIONS = foreign
 AM_CPPFLAGS = -I$(top_srcdir) $(BG_INCLUDES)
-noinst_HEADERS = smap.h
-smap_SOURCES = smap.c job_functions.c \
-	partition_functions.c grid_functions.c \
-	reservation_functions.c opts.c \
-	$(am__append_2)
-smap_LDADD = $(top_builddir)/src/api/libslurm.o \
-	$(DL_LIBS) $(am__append_1)
-#bg_dir = $(top_builddir)/src/plugins/select/bluegene
-smap_LDFLAGS = -export-dynamic $(CMD_LDFLAGS) \
-	$(HWLOC_LDFLAGS) $(HWLOC_LIBS)
+#noinst_HEADERS = smap.h
+#smap_SOURCES = smap.c job_functions.c \
+#	partition_functions.c grid_functions.c \
+#	reservation_functions.c opts.c \
+#	$(am__append_2)
+#smap_LDADD = $(top_builddir)/src/api/libslurm.o \
+#	$(DL_LIBS) $(am__append_1)
+##bg_dir = $(top_builddir)/src/plugins/select/bluegene
+#smap_LDFLAGS = -export-dynamic $(CMD_LDFLAGS) \
+#	$(HWLOC_LDFLAGS) $(HWLOC_LIBS)
 
-#EXTRA_smap_SOURCES = smap.h smap.c \
-#	job_functions.c partition_functions.c \
-#	configure_functions.c grid_functions.c \
-#	reservation_functions.c opts.c
+EXTRA_smap_SOURCES = smap.h smap.c \
+	job_functions.c partition_functions.c \
+	configure_functions.c grid_functions.c \
+	reservation_functions.c opts.c
 
 all: all-am
 
@@ -719,9 +719,9 @@ uninstall-am: uninstall-binPROGRAMS
 	uninstall-binPROGRAMS
 
 
-force:
-$(smap_LDADD) : force
-	@cd `dirname $@` && $(MAKE) `basename $@`
+#force:
+#$(smap_LDADD) : force
+#	@cd `dirname $@` && $(MAKE) `basename $@`
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

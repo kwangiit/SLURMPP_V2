@@ -3748,20 +3748,12 @@ extern int job_complete(uint32_t job_id, uid_t uid, bool requeue,
 	time_t now = time(NULL);
 	uint32_t job_comp_flag = 0;
 	bool suspended = false;
-
-	info("completing job %u status %d", job_id, job_return_code);
-	char *str_job_id = xmalloc(20);
-	sprintf(str_job_id, "%u", job_id);
-
-	char *job_res_record = get_value(str_job_id);
-	xfree(str_job_id);
+	job_resource *job_res_record = get_value(job_id);
 	if (job_res_record == NULL) {
 		info("job_complete: invalid JobId=%u", job_id);
 		return ESLURM_INVALID_JOB_ID;
 	}
-	free_resource *job_free_res = unpack_free_resource(job_res_record);
-	free(job_res_record);
-	incre_free_resource(job_free_res);
+	release_job_resource(job_res_record);
 
 	agent_arg_t *agent_args = xmalloc(sizeof(agent_arg_t));
 	agent_args->msg_type = REQUEST_TERMINATE_JOB;
@@ -3772,27 +3764,24 @@ extern int job_complete(uint32_t job_id, uid_t uid, bool requeue,
 	kill_job->step_id 	= NO_VAL;
 	kill_job->job_state	= SRUN_JOB_RUNNING;
 	kill_job->job_uid	= uid;
-	char *nodelist = xmalloc(job_free_res->num_free_node * 30);
-	int i;
-	for (i = 0; i < job_free_res->num_free_node; i++) {
-		strcat(nodelist, job_free_res->free_nodelist[i]);
-		if (i != job_free_res->num_free_node - 1)
-			strcat(nodelist, ",");
-	}
-	kill_job->nodes		= xstrdup(nodelist);
-	xfree(nodelist);
+	kill_job->nodes		= xstrdup(job_res_record->nodelist);
 	kill_job->time		= time(NULL);
 	kill_job->select_jobinfo = NULL;
 	kill_job->spank_job_env = NULL;
 	kill_job->spank_job_env_size = 0;
 	agent_args->protocol_version = SLURM_PROTOCOL_VERSION;
-	for (i = 0; i < job_free_res->num_free_node; i++) {
-		hostlist_push_host(agent_args->hostlist, job_free_res->free_nodelist[i]);
+
+	char *nodelist = strdup(job_res_record->nodelist);
+	char *p[job_res_record->num_node];
+	split_str(nodelist, ",", p);
+	int i;
+	for (i = 0; i < job_res_record->num_node; i++) {
+		hostlist_push_host(agent_args->hostlist, p[i]);
 		agent_args->node_count++;
 	}
 	agent_args->msg_args = kill_job;
 	agent_queue_request(agent_args);
-	dealloc_free_resource(job_free_res);
+	free(nodelist);
 	//job_ptr = find_job_record(job_id);
 //	if (job_ptr == NULL) {
 //		info("job_complete: invalid JobId=%u", job_id);

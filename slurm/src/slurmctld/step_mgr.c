@@ -2281,22 +2281,15 @@ step_create(job_step_create_request_msg_t *step_specs,
 		xfree(step_specs->node_list);
 		step_specs->node_list = xstrdup(step_node_list);
 	}*/
-
-	char *str_job_id = xmalloc(20);
-	sprintf(str_job_id, "%u", step_specs->job_id);
-	printf("The job id is:%s\n", str_job_id);
-	char *job_res_record = get_value(str_job_id);
+	job_resource *job_res_record = get_value(step_specs->job_id);
 	if (job_res_record == NULL) {
 		info("job_step_requirement: invalid JobId=%u", step_specs->job_id);
 		return ESLURM_INVALID_JOB_ID;
 	}
-	printf("The job nodelist info is:%s\n", job_res_record);
-	xfree(str_job_id);
-	char *job_record[2];
-	split_str(job_res_record, ";", job_record);
-	step_specs->node_list = xstrdup(job_record[1]);
-	printf("The node list now is:%s\n", job_record[1]);
-	free(job_res_record);
+	printf("The job nodelist info is:%s\n", job_res_record->nodelist);
+	step_specs->node_list = xstrdup(job_res_record->nodelist);
+
+	//dealloc_job_resource(job_res_record);
 
 	printf("The node list allocated is:%s\n", step_specs->node_list);
 	step_node_list = xstrdup(step_specs->node_list);

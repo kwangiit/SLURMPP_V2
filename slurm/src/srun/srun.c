@@ -177,7 +177,7 @@ int srun(int ac, char **av)
 	env->env = NULL;
 	env->ckpt_dir = NULL;
 
-	FILE* myfile = fopen("/users/kwangiit/slurmpp_v2/slurm/src/ZHT/src/zhtmemlist", "r");
+	FILE* myfile = fopen("/home/kwang/Documents/summer_lanl_2014/slurm++_v3/slurm/src/ZHT/src/neighbor.conf", "r");
 	int ch, number_of_lines = 0;
 
 	do
@@ -212,6 +212,8 @@ int srun(int ac, char **av)
 	xfree(num_line_str);
 	strcat(conf_file_path, ".50.conf");
 	//slurm_conf_init(NULL);
+	memset(conf_file_path, '\0', 100);
+	strcpy(conf_file_path, "/usr/local/etc/slurm.conf");
 	printf("The config file is:%s\n", conf_file_path);
 	slurm_conf_init(conf_file_path);
 	xfree(conf_file_path);
@@ -314,7 +316,7 @@ relaunch:
 	cur_job_time->end_time = get_time_usec();
 
 	char *srun_job_path = xmalloc(100);
-	strcat(srun_job_path, "/users/kwangiit/slurmpp_v2/output/job_time/srun_job_time_");
+	strcat(srun_job_path, "/home/kwang/Documents/summer_lanl_2014/output/job_time/srun_job_time_");
 	char *str_job_id = xmalloc(20);
 	sprintf(str_job_id, "%u", job->jobid);
 	strcat(srun_job_path, str_job_id);

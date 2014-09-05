@@ -2135,7 +2135,7 @@ static void _slurm_rpc_job_step_create(slurm_msg_t * msg)
 						msg->protocol_version);
 		if (slurm_cred == NULL) {
 			error("slurm_cred_create error");
-			return ESLURM_INVALID_JOB_CREDENTIAL;
+			//return ESLURM_INVALID_JOB_CREDENTIAL;
 		}
 
 
@@ -2445,13 +2445,15 @@ static void _slurm_rpc_node_registration(slurm_msg_t * msg)
 		if (num_regist_recv == part_size) {
 			free_resource *a_free_resource = xmalloc(sizeof(free_resource));
 			a_free_resource->num_free_node = part_size;
-			a_free_resource->free_nodelist = xmalloc_2(part_size * sizeof(char*), 30);
+			a_free_resource->free_nodelist = xmalloc_2(part_size, 30);
 			int i;
 			for (i = 0; i < part_size; i++) {
 				strcpy(a_free_resource->free_nodelist[i], source[i]);
 			}
-			incre_free_resource(a_free_resource);
+			char *str_free_resource = pack_free_resource(a_free_resource);
+			c_zht_insert(self_name, str_free_resource);
 			dealloc_free_resource(a_free_resource);
+			xfree(str_free_resource);
 			num_insert_msg_local++;
 			ready = true;
 		}

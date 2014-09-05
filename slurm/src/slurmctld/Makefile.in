@@ -432,7 +432,7 @@ slurmctld_LDADD = \
 	$(top_builddir)/src/common/libdaemonize.la	\
 	$(top_builddir)/src/api/libslurm.o $(DL_LIBS)	\
 	$(top_builddir)/src/ZHT/src/libzht.a		\
-	-lstdc++ -L/users/kwangiit/hpdc14/gpb/lib -lprotobuf -lprotobuf-c		
+	-lstdc++ -lprotobuf -lprotobuf-c		
 
 slurmctld_LDFLAGS = -export-dynamic $(CMD_LDFLAGS) \
 	$(HWLOC_LDFLAGS) $(HWLOC_LIBS)

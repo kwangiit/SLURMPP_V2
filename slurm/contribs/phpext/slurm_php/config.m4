@@ -19,8 +19,8 @@ else
 fi
 
 if test "$PHP_SLURM" != "no"; then
-	SLURMLIB_PATH="/users/kwangiit/slurmpp_v2/install/lib ../../../src/db_api/.libs"
-	SLURMINCLUDE_PATH="/users/kwangiit/slurmpp_v2/install/include"
+	SLURMLIB_PATH="/usr/local/lib ../../../src/db_api/.libs"
+	SLURMINCLUDE_PATH="/usr/local/include"
 	SEARCH_FOR="libslurmdb.so"
 
 	# --with-libslurm -> check with-path
