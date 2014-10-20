@@ -302,7 +302,7 @@ int main(int argc, char *argv[])
 	 * Establish initial configuration
 	 */
 	_init_config();
-	slurm_conf_init(NULL);
+	//slurm_conf_init(NULL);
 	log_init(argv[0], log_opts, LOG_DAEMON, NULL);
 	sched_log_init(argv[0], sched_log_opts, LOG_DAEMON, NULL);
 	slurmctld_pid = getpid();
@@ -2581,7 +2581,7 @@ void _init_ctrl()
 static void* _record_zht_msg_thread(void *arg)
 {
 	char *record_path = xmalloc(100);
-	strcat(record_path, "/home/kwang/Documents/summer_lanl_2014/output/zht_msg/msg_record_");
+	strcat(record_path, "/users/kwangiit/slurm++/slurm++_v3/output/zht_msg/msg_record_");
 	strcat(record_path, str_self_index);
 	FILE *fp = fopen(record_path, "w+");
 	xfree(record_path);

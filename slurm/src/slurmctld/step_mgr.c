@@ -2286,12 +2286,12 @@ step_create(job_step_create_request_msg_t *step_specs,
 		info("job_step_requirement: invalid JobId=%u", step_specs->job_id);
 		return ESLURM_INVALID_JOB_ID;
 	}
-	printf("The job nodelist info is:%s\n", job_res_record->nodelist);
+	//printf("The job nodelist info is:%s\n", job_res_record->nodelist);
 	step_specs->node_list = xstrdup(job_res_record->nodelist);
 
 	//dealloc_job_resource(job_res_record);
 
-	printf("The node list allocated is:%s\n", step_specs->node_list);
+	//printf("The node list allocated is:%s\n", step_specs->node_list);
 	step_node_list = xstrdup(step_specs->node_list);
 	if (slurmctld_conf.debug_flags & DEBUG_FLAG_STEPS) {
 		verbose("Picked nodes %s when accumulating from %s",
@@ -2320,7 +2320,7 @@ step_create(job_step_create_request_msg_t *step_specs,
 
 	step_ptr->port = step_specs->port;
 	step_ptr->host = xstrdup(step_specs->host);
-	printf("The host name is:%s\n", step_specs->host);
+	//printf("The host name is:%s\n", step_specs->host);
 	step_ptr->batch_step = batch_step;
 	step_ptr->cpu_freq = step_specs->cpu_freq;
 	step_ptr->cpus_per_task = (uint16_t)cpus_per_task;
@@ -2344,7 +2344,7 @@ step_create(job_step_create_request_msg_t *step_specs,
 		step_ptr->network = xstrdup(step_specs->network);
 	//else
 		//step_ptr->network = xstrdup(job_ptr->network);
-	printf("The network is:%s\n", step_specs->network);
+	//printf("The network is:%s\n", step_specs->network);
 	step_ptr->select_jobinfo = select_jobinfo;
 	select_jobinfo = NULL;
 

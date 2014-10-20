@@ -177,15 +177,25 @@ int srun(int ac, char **av)
 	env->env = NULL;
 	env->ckpt_dir = NULL;
 
-	FILE* myfile = fopen("/home/kwang/Documents/summer_lanl_2014/slurm++_v3/slurm/src/ZHT/src/neighbor.conf", "r");
+	FILE* myfile = fopen("/users/kwangiit/slurm++/slurm++_v3/slurm/src/ZHT/src/zhtmemlist", "r");
 	int ch, number_of_lines = 0;
 
-	do
+	for (;;) {
+		ch = getc(myfile);
+		if (ch == '\n')
+			++number_of_lines;
+		if (ch == EOF) {
+			++number_of_lines;
+			break;
+		}
+	}
+
+	/*do
 	{
 	    ch = fgetc(myfile);
 	    if(ch == '\n')
 	    	number_of_lines++;
-	} while (ch != EOF);
+	} while (ch != EOF);*/
 
 	// last line doesn't end with a new line!
 	// but there has to be a line at least before the last line
@@ -193,12 +203,12 @@ int srun(int ac, char **av)
 	 //   number_of_lines++;
 
 	fclose(myfile);
-
-	srand(time(NULL));
+	cur_job_time->start_time = get_time_usec();
+	srand(cur_job_time->start_time);
 	//printf("The number of line is:%d\n", number_of_lines);
 	int index = rand() % number_of_lines + 1;
 	char *conf_file_path = xmalloc(100);
-	strcat(conf_file_path, "/users/kwangiit/slurmpp_v2/config/slurm.");
+	strcat(conf_file_path, "/users/kwangiit/slurm++/slurm++_v3/config/slurm.");
 
 	printf("My index is:%d\n", index);
 	char *index_str = xmalloc(20);
@@ -212,9 +222,10 @@ int srun(int ac, char **av)
 	xfree(num_line_str);
 	strcat(conf_file_path, ".50.conf");
 	//slurm_conf_init(NULL);
-	memset(conf_file_path, '\0', 100);
-	strcpy(conf_file_path, "/usr/local/etc/slurm.conf");
+	//memset(conf_file_path, '\0', 100);
+	//strcpy(conf_file_path, "/usr/local/etc/slurm.conf");
 	printf("The config file is:%s\n", conf_file_path);
+	cur_job_time->start_time = get_time_usec();
 	slurm_conf_init(conf_file_path);
 	xfree(conf_file_path);
 	debug_level = _slurm_debug_env_val();

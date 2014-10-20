@@ -75,10 +75,11 @@ void update_job_resource(job_resource *a_job_res,
 {
 	a_job_res->num_try = 0;
 	a_job_res->sleep_length = 10000;
-	a_job_res->num_node += num_node_allocated;
+	//a_job_res->num_node += num_node_allocated;
 	if (a_job_res->num_node > 0) {
 		strcat(a_job_res->nodelist, ",");
 	}
+	a_job_res->num_node += num_node_allocated;
 	strcat(a_job_res->nodelist, nodelist);
 	printf("The nodelist allocated is:%s\n", nodelist);
 	int index = find_exist(a_job_res->ctrl_ids, ctrl_id, a_job_res->num_ctrl);
@@ -165,6 +166,8 @@ void allocate_resource(job_resource *a_job_res, char *ctrl_id, int num_more_node
 			//usleep(a_job_res->sleep_length);
 			//a_job_res->sleep_length *= 2;
 		} else {
+			printf("I succeeded to allocate resource, num more node "
+					"is:%d, all node is:%d\n", num_more_node, a_job_res->num_node);
 			free_resource *cur_free_res = unpack_free_resource(query_value);
 			pthread_mutex_lock(&global_res_BST_mutex);
 			BST_insert(&(global_res_BST->resource_bst), ctrl_id, cur_free_res->num_free_node);
@@ -211,6 +214,8 @@ extern job_resource* allocate_job_resource(int num_node_req)
 
 	while (a_job_res->num_node < num_node_req) {
 		printf("OK, keep allocating!\n");
+		printf("num node req is:%d, allocated is:%d, candidate controller "
+				"is:%s\n", num_node_req, a_job_res->num_node, candidate_ctrl);
 		allocate_resource(a_job_res, candidate_ctrl, num_node_req - a_job_res->num_node);
 		if (a_job_res->num_try > 10) {
 			printf("I have tried more than 10 times!\n");
