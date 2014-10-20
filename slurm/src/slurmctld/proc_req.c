@@ -989,9 +989,9 @@ static void _slurm_rpc_allocate_resources(slurm_msg_t * msg)
 			do_unlock = true;
 			//_throttle_start(&active_rpc_cnt);
 			//lock_slurmctld(job_write_lock);
-			printf("Before allocating resources!\n");
+			//printf("Before allocating resources!\n");
 			a_job_res = allocate_job_resource(job_desc_msg->min_nodes);
-			printf("After allocating resources!\n");
+			//printf("After allocating resources!\n");
 			insert_job_record(a_job_res);
 			//error_code = job_allocate(job_desc_msg, immediate,
 //						  false, NULL,
@@ -1761,15 +1761,15 @@ static void _slurm_rpc_complete_job_allocation(slurm_msg_t * msg)
 	       "uid=%u, JobId=%u rc=%d",
 	       uid, comp_msg->job_id, comp_msg->job_rc);
 
-	//_throttle_start(&active_rpc_cnt);
-	//lock_slurmctld(job_write_lock);
+	_throttle_start(&active_rpc_cnt);
+	lock_slurmctld(job_write_lock);
 
 	/* do RPC call */
 	/* Mark job and/or job step complete */
 	error_code = job_complete(comp_msg->job_id, uid,
 				  false, false, comp_msg->job_rc);
-	//unlock_slurmctld(job_write_lock);
-	//_throttle_fini(&active_rpc_cnt);
+	unlock_slurmctld(job_write_lock);
+	_throttle_fini(&active_rpc_cnt);
 	END_TIMER2("_slurm_rpc_complete_job_allocation");
 
 	/* return result */
@@ -2072,8 +2072,8 @@ static void _slurm_rpc_job_step_create(slurm_msg_t * msg)
 	}
 #endif
 
-	//_throttle_start(&active_rpc_cnt);
-	//lock_slurmctld(job_write_lock);
+	_throttle_start(&active_rpc_cnt);
+	lock_slurmctld(job_write_lock);
 	error_code = step_create(req_step_msg, &step_rec, false);
 
 	if (error_code == SLURM_SUCCESS) {
@@ -2147,8 +2147,8 @@ static void _slurm_rpc_job_step_create(slurm_msg_t * msg)
 
 	/* return result */
 	if (error_code) {
-		//unlock_slurmctld(job_write_lock);
-		//_throttle_fini(&active_rpc_cnt);
+		unlock_slurmctld(job_write_lock);
+		_throttle_fini(&active_rpc_cnt);
 		if ((error_code == ESLURM_PROLOG_RUNNING) ||
 		    (error_code == ESLURM_DISABLED)) {	/* job suspended */
 			debug("_slurm_rpc_job_step_create for job %u: %s",
@@ -2178,8 +2178,8 @@ static void _slurm_rpc_job_step_create(slurm_msg_t * msg)
 		job_step_resp.select_jobinfo = step_rec->select_jobinfo;
 		job_step_resp.switch_job     = step_rec->switch_job;
 
-		//unlock_slurmctld(job_write_lock);
-		//_throttle_fini(&active_rpc_cnt);
+		unlock_slurmctld(job_write_lock);
+		_throttle_fini(&active_rpc_cnt);
 		slurm_msg_t_init(&resp);
 		resp.flags = msg->flags;
 		resp.protocol_version = msg->protocol_version;
@@ -2929,8 +2929,8 @@ static void _slurm_rpc_step_complete(slurm_msg_t *msg)
 	      req->range_first, req->range_last,
 	      req->step_rc, uid);
 
-	//_throttle_start(&active_rpc_cnt);
-	//lock_slurmctld(job_write_lock);
+	_throttle_start(&active_rpc_cnt);
+	lock_slurmctld(job_write_lock);
 	//rc = step_partial_comp(req, uid, &rem, &step_rc);
 
 	//if (rc || rem) {	/* some error or not totally done */
@@ -2947,8 +2947,8 @@ static void _slurm_rpc_step_complete(slurm_msg_t *msg)
 		/* FIXME: test for error, possibly cause batch job requeue */
 		error_code = job_complete(req->job_id, uid, false,
 					  false, step_rc);
-		//unlock_slurmctld(job_write_lock);
-		//_throttle_fini(&active_rpc_cnt);
+		unlock_slurmctld(job_write_lock);
+		_throttle_fini(&active_rpc_cnt);
 		END_TIMER2("_slurm_rpc_step_complete");
 
 		/* return result */
@@ -2965,8 +2965,8 @@ static void _slurm_rpc_step_complete(slurm_msg_t *msg)
 	} else {
 		error_code = SLURM_SUCCESS;//job_step_complete(req->job_id, req->job_step_id,
 					 //      uid, false, step_rc);
-		//unlock_slurmctld(job_write_lock);
-		//_throttle_fini(&active_rpc_cnt);
+		unlock_slurmctld(job_write_lock);
+		_throttle_fini(&active_rpc_cnt);
 		END_TIMER2("_slurm_rpc_step_complete");
 
 		/* return result */

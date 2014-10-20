@@ -81,13 +81,13 @@ void update_job_resource(job_resource *a_job_res,
 	}
 	a_job_res->num_node += num_node_allocated;
 	strcat(a_job_res->nodelist, nodelist);
-	printf("The nodelist allocated is:%s\n", nodelist);
+	//printf("The nodelist allocated is:%s\n", nodelist);
 	int index = find_exist(a_job_res->ctrl_ids, ctrl_id, a_job_res->num_ctrl);
 	if (index < 0) {
 		strcat(a_job_res->ctrl_ids[a_job_res->num_ctrl], ctrl_id);
 		strcat(a_job_res->node_alloc[a_job_res->num_ctrl], nodelist);
 		a_job_res->num_node_indi[a_job_res->num_ctrl] += num_node_allocated;
-		printf("The number of nodes is:%d\n", a_job_res->num_node_indi[a_job_res->num_ctrl]);
+		//printf("The number of nodes is:%d\n", a_job_res->num_node_indi[a_job_res->num_ctrl]);
 		a_job_res->num_ctrl++;
 	} else {
 		strcat(a_job_res->node_alloc[index], ",");
@@ -166,8 +166,8 @@ void allocate_resource(job_resource *a_job_res, char *ctrl_id, int num_more_node
 			//usleep(a_job_res->sleep_length);
 			//a_job_res->sleep_length *= 2;
 		} else {
-			printf("I succeeded to allocate resource, num more node "
-					"is:%d, all node is:%d\n", num_more_node, a_job_res->num_node);
+			//printf("I succeeded to allocate resource, num more node "
+			//		"is:%d, all node is:%d\n", num_more_node, a_job_res->num_node);
 			free_resource *cur_free_res = unpack_free_resource(query_value);
 			pthread_mutex_lock(&global_res_BST_mutex);
 			BST_insert(&(global_res_BST->resource_bst), ctrl_id, cur_free_res->num_free_node);
@@ -203,22 +203,22 @@ extern job_resource* allocate_job_resource(int num_node_req)
 			c_memset(candidate_ctrl, 30);
 			strcpy(candidate_ctrl, bst->data);
 			num = bst->num;
-			printf("The data is:%s, and the number is:%d\n", bst->data, bst->num);
+			//printf("The data is:%s, and the number is:%d\n", bst->data, bst->num);
 			BST_delete(&(global_res_BST->resource_bst), bst->data, bst->num);
 		} else {
-			printf("OK, that is weired!\n");
+			//printf("OK, that is weired!\n");
 			sleep(10);
 		}
 		pthread_mutex_unlock(&global_res_BST_mutex);
 	}
 
 	while (a_job_res->num_node < num_node_req) {
-		printf("OK, keep allocating!\n");
-		printf("num node req is:%d, allocated is:%d, candidate controller "
-				"is:%s\n", num_node_req, a_job_res->num_node, candidate_ctrl);
+		//printf("OK, keep allocating!\n");
+		//printf("num node req is:%d, allocated is:%d, candidate controller "
+		//		"is:%s\n", num_node_req, a_job_res->num_node, candidate_ctrl);
 		allocate_resource(a_job_res, candidate_ctrl, num_node_req - a_job_res->num_node);
 		if (a_job_res->num_try > 10) {
-			printf("I have tried more than 10 times!\n");
+			//printf("I have tried more than 10 times!\n");
 			release_job_resource(a_job_res);
 			reset_job_resource(a_job_res);
 			usleep(a_job_res->sleep_length);
@@ -255,19 +255,19 @@ job_resource *copy_job_resource(job_resource *a_job_resource)
 {
 	job_resource *b_job_resource = xmalloc(sizeof(job_resource));
 	b_job_resource->job_id = a_job_resource->job_id;
-	printf("The job id is:%u\n", b_job_resource->job_id);
+	//printf("The job id is:%u\n", b_job_resource->job_id);
 	b_job_resource->num_ctrl = a_job_resource->num_ctrl;
-	printf("The number of controller is:%d\n", b_job_resource->num_ctrl);
+	//printf("The number of controller is:%d\n", b_job_resource->num_ctrl);
 	b_job_resource->num_node = a_job_resource->num_node;
-	printf("The number of node is:%d\n", b_job_resource->num_node);
+	//printf("The number of node is:%d\n", b_job_resource->num_node);
 	b_job_resource->num_try = a_job_resource->num_try;
-	printf("The number of retry is:%d\n", b_job_resource->num_try);
+	//printf("The number of retry is:%d\n", b_job_resource->num_try);
 	b_job_resource->sleep_length = a_job_resource->sleep_length;
-	printf("The sleep length is:%d\n", b_job_resource->sleep_length);
+	//printf("The sleep length is:%d\n", b_job_resource->sleep_length);
 
 	b_job_resource->nodelist = xmalloc(30 * part_size * num_ctrl);
 	strcpy(b_job_resource->nodelist, a_job_resource->nodelist);
-	printf("The node list now is:%s\n", b_job_resource->nodelist);
+	//printf("The node list now is:%s\n", b_job_resource->nodelist);
 	b_job_resource->ctrl_ids = xmalloc_2(num_ctrl, 30);
 	b_job_resource->node_alloc = xmalloc_2(num_ctrl, 30 * part_size);
 	b_job_resource->num_node_indi = xmalloc(sizeof(int) * num_ctrl);
@@ -275,11 +275,11 @@ job_resource *copy_job_resource(job_resource *a_job_resource)
 	int i;
 	for (i = 0; i < b_job_resource->num_ctrl; i++) {
 		strcpy(b_job_resource->ctrl_ids[i], a_job_resource->ctrl_ids[i]);
-		printf("The %dth controller is:%s\n", i, b_job_resource->ctrl_ids[i]);
+		//printf("The %dth controller is:%s\n", i, b_job_resource->ctrl_ids[i]);
 		strcpy(b_job_resource->node_alloc[i], a_job_resource->node_alloc[i]);
-		printf("The %dth nodes are:%s\n", i, b_job_resource->node_alloc[i]);
+		//printf("The %dth nodes are:%s\n", i, b_job_resource->node_alloc[i]);
 		b_job_resource->num_node_indi[i] = a_job_resource->num_node_indi[i];
-		printf("The %dth number of nodes is:%d\n", i, b_job_resource->num_node_indi[i]);
+		//printf("The %dth number of nodes is:%d\n", i, b_job_resource->num_node_indi[i]);
 	}
 
 	return b_job_resource;
@@ -303,9 +303,9 @@ int put_record(uint32_t key, job_resource *value)
 {
 	unsigned int hi;
 	hashtable *list;
-	printf("Now, insert job resource to local key-value store:%u, and nodelist is:%s\n", value->job_id, value->nodelist);
+	//printf("Now, insert job resource to local key-value store:%u, and nodelist is:%s\n", value->job_id, value->nodelist);
 	if ((list = lookup(key)) == NULL) {
-		printf("OK, this is a new key %u and value\n", key);
+		//printf("OK, this is a new key %u and value\n", key);
 		hi = hash(key);
 		list = xmalloc(sizeof(hashtable));
 		if (list == NULL)
@@ -646,8 +646,8 @@ extern void BST_print_all(BST **bst)
 {
 	if (*bst) {
 		BST_print_all(&((*bst)->leftchild));
-		printf("The data is:%s\n", (*bst)->data);
-		printf("The number is%d\n", (*bst)->num);
+		//printf("The data is:%s\n", (*bst)->data);
+		//printf("The number is%d\n", (*bst)->num);
 		BST_print_all(&((*bst)->rightchild));
 	}
 }
