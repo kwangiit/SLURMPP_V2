@@ -170,6 +170,9 @@ void allocate_resource(job_resource *a_job_res, char *ctrl_id, int num_more_node
 			//		"is:%d, all node is:%d\n", num_more_node, a_job_res->num_node);
 			free_resource *cur_free_res = unpack_free_resource(query_value);
 			pthread_mutex_lock(&global_res_BST_mutex);
+			BST *bst = BST_search_exact(&(global_res_BST->resource_bst), ctrl_id);
+			if (bst != NULL)
+				BST_delete(&(global_res_BST->resource_bst), ctrl_id, bst->num);
 			BST_insert(&(global_res_BST->resource_bst), ctrl_id, cur_free_res->num_free_node);
 			pthread_mutex_unlock(&global_res_BST_mutex);
 			dealloc_free_resource(cur_free_res);
@@ -182,20 +185,21 @@ void allocate_resource(job_resource *a_job_res, char *ctrl_id, int num_more_node
 extern job_resource* allocate_job_resource(int num_node_req)
 {
 	job_resource *a_job_res = init_job_resource();
-	char *ctrl_name = self_name;
+	//char *ctrl_name = self_name;
 	BST *bst = NULL;
 	char *candidate_ctrl = xmalloc(30);
-	int num = -1;
-	pthread_mutex_lock(&global_res_BST_mutex);
+	//int num = -1;
+	strcpy(candidate_ctrl, self_name);
+	/*pthread_mutex_lock(&global_res_BST_mutex);
 	bst = BST_search_exact(&(global_res_BST->resource_bst), ctrl_name);
 	if (bst != NULL) {
 		strcpy(candidate_ctrl, bst->data);
 		num = bst->num;
 		BST_delete(&(global_res_BST->resource_bst), bst->data, bst->num);
 	}
-	pthread_mutex_unlock(&global_res_BST_mutex);
+	pthread_mutex_unlock(&global_res_BST_mutex);*/
 
-	while (bst == NULL) {
+	/*while (bst == NULL) {
 		usleep(10000);
 		pthread_mutex_lock(&global_res_BST_mutex);
 		bst = BST_search_best(&(global_res_BST->resource_bst), num_node_req);
@@ -210,7 +214,7 @@ extern job_resource* allocate_job_resource(int num_node_req)
 			sleep(10);
 		}
 		pthread_mutex_unlock(&global_res_BST_mutex);
-	}
+	}*/
 
 	while (a_job_res->num_node < num_node_req) {
 		//printf("OK, keep allocating!\n");
@@ -223,28 +227,31 @@ extern job_resource* allocate_job_resource(int num_node_req)
 			reset_job_resource(a_job_res);
 			usleep(a_job_res->sleep_length);
 		}
-		pthread_mutex_lock(&global_res_BST_mutex);
-		bst = BST_search_best(&(global_res_BST->resource_bst),
-				num_node_req - a_job_res->num_node);
-		if (bst != NULL) {
+		if (a_job_res->num_node < num_node_req) {
 			c_memset(candidate_ctrl, 30);
-			strcpy(candidate_ctrl, bst->data);
-			num = bst->num;
-			BST_delete(&(global_res_BST->resource_bst), bst->data, bst->num);
-		}
-		pthread_mutex_unlock(&global_res_BST_mutex);
-		while (bst == NULL && a_job_res->num_node < num_node_req) {
-			usleep(10000);
 			pthread_mutex_lock(&global_res_BST_mutex);
 			bst = BST_search_best(&(global_res_BST->resource_bst),
 					num_node_req - a_job_res->num_node);
 			if (bst != NULL) {
-				c_memset(candidate_ctrl, 30);
 				strcpy(candidate_ctrl, bst->data);
-				num = bst->num;
+				//num = bst->num;
 				BST_delete(&(global_res_BST->resource_bst), bst->data, bst->num);
-			}
+			} else
+				strcpy(candidate_ctrl, self_name);
 			pthread_mutex_unlock(&global_res_BST_mutex);
+			/*while (bst == NULL && a_job_res->num_node < num_node_req) {
+				usleep(10000);
+				pthread_mutex_lock(&global_res_BST_mutex);
+				bst = BST_search_best(&(global_res_BST->resource_bst),
+						num_node_req - a_job_res->num_node);
+				if (bst != NULL) {
+					c_memset(candidate_ctrl, 30);
+					strcpy(candidate_ctrl, bst->data);
+					//num = bst->num;
+					BST_delete(&(global_res_BST->resource_bst), bst->data, bst->num);
+				}
+				pthread_mutex_unlock(&global_res_BST_mutex);
+			}*/
 		}
 	}
 	xfree(candidate_ctrl);

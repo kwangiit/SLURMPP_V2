@@ -2443,12 +2443,12 @@ extern slurm_step_layout_t *step_layout_create(struct step_record *step_ptr,
 					       uint16_t task_dist,
 					       uint16_t plane_size)
 {
-	printf("The step node list is:%s\n", step_node_list);
-	printf("The node count is:%d\n", node_count);
-	printf("Number of task is:%d\n", num_tasks);
-	printf("CPUS per task is:%d\n", cpus_per_task);
-	printf("Task dist is:%d\n", task_dist);
-	printf("Plane size is:%d\n", plane_size);
+//	printf("The step node list is:%s\n", step_node_list);
+//	printf("The node count is:%d\n", node_count);
+//	printf("Number of task is:%d\n", num_tasks);
+//	printf("CPUS per task is:%d\n", cpus_per_task);
+//	printf("Task dist is:%d\n", task_dist);
+//	printf("Plane size is:%d\n", plane_size);
 	uint16_t cpus_per_node[node_count];
 	//struct job_record *job_ptr = step_ptr->job_ptr;
 	//job_resources_t *job_resrcs_ptr = job_ptr->job_resrcs;
