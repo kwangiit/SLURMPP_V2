@@ -176,15 +176,20 @@ int   batch_sched_delay = 3;
 int   sched_interval = 60;
 int   slurmctld_primary = 1;
 
-/* Global variables and mutex added for SLURM++ */
-char *zht_cfg_file = NULL;	/* zht configure file*/
-char *zht_mem_file = NULL;	/* zht memberlist file*/
+/* local static variables added for SLURM++ */
+static char *zht_cfg_file = NULL;	/* zht configure file*/
+static char *zht_mem_file = NULL;	/* zht memberlist file*/
+static char *mem_list_file = NULL;	/* controller memberlist file*/
 
+static char *log_file_path = NULL;	/* directories of the result log files */
+static int monitor_interval = 0;
+static int update_global_interval = 0;
+
+/* Global variables and mutex added for SLURM++ */
 int part_size = 1;	/* partition size*/
 int num_ctrl = 1;	/* number of controllers/partitions*/
 char **source = NULL;	/* all the registered slurmds*/
 
-char *mem_list_file = NULL;	/* controller memberlist file*/
 char **mem_list = NULL;	/* controller memberlist */
 
 int self_index = -1;	/* self index of this controller */
@@ -472,12 +477,14 @@ int main(int argc, char *argv[])
 	if (switch_g_slurmctld_init() != SLURM_SUCCESS )
 		fatal( "failed to initialize switch plugin");
 
+	/* thread to record the ZHT message count and number of jobs */
 	pthread_t record_thread;
 	while (pthread_create(&record_thread, NULL, _record_zht_msg_thread, NULL)) {
 		error("pthread_create error %m");
 		sleep(1);
 	}
 
+	/* the first controller monitors the global resource */
 	if (self_index == 0) {
 		pthread_t monitoring_thread;
 		while (pthread_create(&monitoring_thread, NULL, _monitoring, NULL)) {
@@ -1963,7 +1970,7 @@ static void _parse_commandline(int argc, char *argv[])
 	bool bg_recover_override = 0;
 
 	opterr = 0;
-	while ((c = getopt(argc, argv, "BcC:dDf:hi:L:m:n:p:rRvVz:Z:")) != -1)
+	while ((c = getopt(argc, argv, "BcC:dDf:hi:l:L:m:M:n:p:rRu:vVz:Z:")) != -1)
 		switch (c) {
 		case 'B':
 			bg_recover = 0;
@@ -1992,11 +1999,17 @@ static void _parse_commandline(int argc, char *argv[])
 		case 'i':
 			self_index = strtol(optarg, &tmp_char, 10);
 			break;
+		case 'l':
+			log_file_path = xstrdup(optarg);
+			break;
 		case 'L':
 			debug_logfile = xstrdup(optarg);
 			break;
 		case 'm':
 			mem_list_file = xstrdup(optarg);
+			break;
+		case 'M':
+			monitor_interval = strtol(optarg, &tmp_char, 10);
 			break;
 		case 'n':
 			new_nice = strtol(optarg, &tmp_char, 10);
@@ -2018,6 +2031,9 @@ static void _parse_commandline(int argc, char *argv[])
 			recover = 2;
 			if (!bg_recover_override)
 				bg_recover = 1;
+			break;
+		case 'u':
+			update_global_interval = strtol(optarg, &tmp_char, 10);
 			break;
 		case 'v':
 			debug_level++;
@@ -2573,15 +2589,17 @@ void _init_ctrl()
 	}
 
 	global_res_BST = xmalloc(sizeof(resource_BST));
-	global_res_BST->num_part = num_ctrl;
-	global_res_BST->num_free_nodes = num_ctrl * part_size;
+	global_res_BST->num_part = 0;
+	global_res_BST->num_free_nodes = 0;
 	global_res_BST->resource_bst = NULL;
 }
 
 static void* _record_zht_msg_thread(void *arg)
 {
 	char *record_path = xmalloc(100);
-	strcat(record_path, "/users/kwangiit/slurm++/slurm++_v3/output/zht_msg/msg_record_");
+	strcpy(record_path, log_file_path);
+	if (log_file_path[strlen(log_file_path) - 1] != '/')
+		strcat(record_path, "/");
 	strcat(record_path, str_self_index);
 	FILE *fp = fopen(record_path, "w+");
 	xfree(record_path);
@@ -2598,16 +2616,19 @@ static void* _record_zht_msg_thread(void *arg)
 
 static void* _monitoring(void *arg)
 {
+	int i = 0;
+	bool done = false;
 	char *global_resource_key = "global resource specification";
-	int i;
 	char *ctrl_resource = xmalloc((part_size + 1) * 30);
 	char *global_resource_value = xmalloc(num_ctrl * 50);
 
+	/* check to see whether all the partitions finish the registration */
 	while (!ready) {
-		usleep(10);
+		usleep(1000);
 	}
-	sleep(30);
 
+	/* the global resource has the following format:
+	 * node-1;50$node-2;50$...node-100;50*/
 	while (1) {
 		c_memset(global_resource_value, num_ctrl * 50);
 		for (i = 0; i < num_ctrl; i++) {
@@ -2620,15 +2641,18 @@ static void* _monitoring(void *arg)
 			strcat(global_resource_value, mem_list[i]);
 			strcat(global_resource_value, ";");
 			strcat(global_resource_value, str_num_node);
-			if (i != num_ctrl - 1) {
-				strcat(global_resource_value, "?");
-			}
+			if (i != num_ctrl - 1)
+				strcat(global_resource_value, "$");
 			xfree(str_num_node);
 			dealloc_free_resource(cur_free_resource);
 		}
 		//printf("The global resource value to be inserted is:%s\n", global_resource_value);
 		c_zht_insert(global_resource_key, global_resource_value);
-		usleep(10000);
+		if (!done) {
+			c_zht_insert("first global resource", "exist!");
+			done = true;
+		}
+		usleep(monitor_interval);
 	}
 
 	pthread_exit(NULL);
@@ -2641,10 +2665,10 @@ static void* _update_global_resource(void *arg)
 	char *global_resource_value = xmalloc(num_ctrl * 50);
 	int i;
 
-	while (!ready) {
-		usleep(10);
-	}
-	sleep(35);
+	char *exist = xmalloc(10);
+	while (c_zht_lookup("first global resource", exist) != 0)
+		usleep(5000);
+	xfree(exist);
 
 	while (1) {
 		c_memset(global_resource_value, num_ctrl * 50);
@@ -2652,18 +2676,24 @@ static void* _update_global_resource(void *arg)
 		char *global_resource_value_copy = strdup(global_resource_value);
 		//printf("The global resource value is:%s\n", global_resource_value_copy);
 		char *p[num_ctrl];
-		split_str(global_resource_value_copy, "?", p);
+		split_str(global_resource_value_copy, "$", p);
+
 		pthread_mutex_lock(&global_res_BST_mutex);
 		BST_delete_all(&(global_res_BST->resource_bst));
+		global_res_BST->num_free_nodes = 0;
+		global_res_BST->num_part = 0;
 		for (i = 0; i < num_ctrl; i++) {
 			char *pp[2];
 			split_str(p[i], ";", pp);
 			int num = str_to_int(pp[1]);
 			BST_insert(&(global_res_BST->resource_bst), pp[0], num);
+			global_res_BST->num_free_nodes += num;
 		}
+		global_res_BST->num_part = num_ctrl;
 		pthread_mutex_unlock(&global_res_BST_mutex);
 		free(global_resource_value_copy);
-		usleep(20000);
+		global_resource_value_copy = NULL;
+		usleep(update_global_interval);
 	}
 
 	pthread_exit(NULL);

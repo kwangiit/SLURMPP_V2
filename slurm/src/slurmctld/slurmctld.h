@@ -760,8 +760,6 @@ enum select_plugindata_info {
 /*****************************************************************************\
  *  Added global variables and mutex for SLURM++
 \*****************************************************************************/
-extern char *zht_cfg_file;
-extern char *zht_mem_file;
 
 extern int part_size;
 extern int num_ctrl;
@@ -771,7 +769,6 @@ extern char *str_self_index;
 extern char *self_name;
 extern char **source;
 
-extern char *mem_list_file;
 extern char **mem_list;
 
 extern int num_regist_recv;

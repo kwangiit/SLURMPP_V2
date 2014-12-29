@@ -24,6 +24,7 @@ extern job_resource* init_job_resource()
 	a_job_res->job_id = (unsigned int) (strtol(job_id_tmp, end, 10));
 	xfree(job_id_tmp);
 	xfree(str_num_job_recv);
+
 	a_job_res->num_try = 0;
 	a_job_res->num_node = 0;
 	a_job_res->sleep_length = 10000;
@@ -32,10 +33,10 @@ extern job_resource* init_job_resource()
 	a_job_res->ctrl_ids = xmalloc_2(num_ctrl, 30);
 	a_job_res->node_alloc = xmalloc_2(num_ctrl, 30 * part_size);
 	a_job_res->num_node_indi = xmalloc(sizeof(int) * num_ctrl);
+
 	int i;
-	for (i = 0; i < num_ctrl; i++) {
+	for (i = 0; i < num_ctrl; i++)
 		a_job_res->num_node_indi[i] = 0;
-	}
 
 	return a_job_res;
 }
@@ -75,10 +76,8 @@ void update_job_resource(job_resource *a_job_res,
 {
 	a_job_res->num_try = 0;
 	a_job_res->sleep_length = 10000;
-	//a_job_res->num_node += num_node_allocated;
-	if (a_job_res->num_node > 0) {
+	if (a_job_res->num_node > 0)
 		strcat(a_job_res->nodelist, ",");
-	}
 	a_job_res->num_node += num_node_allocated;
 	strcat(a_job_res->nodelist, nodelist);
 	//printf("The nodelist allocated is:%s\n", nodelist);
@@ -96,50 +95,61 @@ void update_job_resource(job_resource *a_job_res,
 	}
 }
 
+/* attempt to allocate resources
+ * ret = 0: means allocation is succeeded;
+ * ret = 1: means compare and swap failed
+ * ret = -1: means no free nodes
+ * */
 int do_allocate(char *free_res,
-				  char *ctrl_id,
-				  job_resource *a_job_res,
-				  char *query_value,
-				  int num_more_node)
+				char *ctrl_id,
+				job_resource *a_job_res,
+				char *query_value,
+				int num_more_node)
 {
 	free_resource *cur_free_res = unpack_free_resource(free_res);
 	int ret = 0;
+
+	/* if the current partition has free nodes */
 	if (cur_free_res->num_free_node > 0) {
 		int num_node_attempt = cur_free_res->num_free_node > num_more_node ?
 				num_more_node : cur_free_res->num_free_node;
+
+		/* create a new attempted free resource */
 		int num_node_left = cur_free_res->num_free_node - num_node_attempt;
-		char *nodelist = xmalloc(part_size * 30);
-		int i;
-		for (i = 0; i < num_node_attempt; i++) {
-			strcat(nodelist, cur_free_res->free_nodelist[i]);
-			if (i != num_node_attempt - 1) {
-				strcat(nodelist, ",");
-			}
-		}
 		free_resource *new_free_res = xmalloc(sizeof(free_resource));
 		new_free_res->num_free_node = num_node_left;
-		if (num_node_left > 0) {
+		if (num_node_left > 0)
 			new_free_res->free_nodelist = xmalloc_2(num_node_left, 30);
-		}
-		for (i = 0; i < num_node_left; i++) {
+		for (i = 0; i < num_node_left; i++)
 			strcat(new_free_res->free_nodelist[i],
 					cur_free_res->free_nodelist[i + num_node_attempt]);
-		}
 		char *str_new_free_res = pack_free_resource(new_free_res);
-		int ret = c_zht_compare_swap(ctrl_id,
-				free_res, str_new_free_res, query_value);
+
+		/* compare and swap to allocate the attempted resources */
+		int ret = c_zht_compare_swap(ctrl_id, free_res, str_new_free_res, query_value);
+
+		/* ret = 0 means the allocation is succeeded, then update the job resource
+		 * ret = 1 means the allocation is failed*/
 		if (ret == 0) {
+			char *nodelist = xmalloc(part_size * 30);
+			int i;
+			for (i = 0; i < num_node_attempt; i++) {
+				strcat(nodelist, cur_free_res->free_nodelist[i]);
+				if (i != num_node_attempt - 1)
+					strcat(nodelist, ",");
+			}
 			update_job_resource(a_job_res, num_node_attempt, ctrl_id, nodelist);
-		}else {
+			xfree(nodelist);
+		}else
 			ret = 1;
-		}
+
 		incre_zht_msg("cswap", 1);
-		xfree(nodelist);
+
 		dealloc_free_resource(new_free_res);
 		xfree(str_new_free_res);
-	} else {
+	} else
 		ret = -1;
-	}
+
 	dealloc_free_resource(cur_free_res);
 	return ret;
 }
@@ -147,74 +157,49 @@ int do_allocate(char *free_res,
 void allocate_resource(job_resource *a_job_res, char *ctrl_id, int num_more_node)
 {
 	char *free_res = xmalloc((part_size + 1) * 30);
+	char *query_value = xmalloc((part_size + 1) * 30);
+
 	c_zht_lookup(ctrl_id, free_res);
 	incre_zht_msg("lookup", 1);
 
-	if (free_res == NULL) {
-		a_job_res->num_try++;
-	}else {
-		char *query_value = xmalloc((part_size + 1) * 30);
-		int ret = do_allocate(free_res, ctrl_id, a_job_res, query_value, num_more_node);
-		while (ret == 1) {
+	int ret = do_allocate(free_res, ctrl_id, a_job_res, query_value, num_more_node);
+
+		/* ret = 1 means there are resources, but compare and swap failed
+		 * because of competition, then continue to compete resource */
+	while (ret == 1) {
 			c_memset(free_res, (part_size + 1) * 30);
 			strcpy(free_res, query_value);
 			c_memset(query_value, (part_size + 1) * 30);
 			ret = do_allocate(free_res, ctrl_id, a_job_res, query_value, num_more_node);
-		}
-		if (ret < 0) {
-			a_job_res->num_try++;
-			//usleep(a_job_res->sleep_length);
-			//a_job_res->sleep_length *= 2;
-		} else {
-			//printf("I succeeded to allocate resource, num more node "
-			//		"is:%d, all node is:%d\n", num_more_node, a_job_res->num_node);
-			free_resource *cur_free_res = unpack_free_resource(query_value);
-			pthread_mutex_lock(&global_res_BST_mutex);
-			BST *bst = BST_search_exact(&(global_res_BST->resource_bst), ctrl_id);
-			if (bst != NULL)
-				BST_delete(&(global_res_BST->resource_bst), ctrl_id, bst->num);
-			BST_insert(&(global_res_BST->resource_bst), ctrl_id, cur_free_res->num_free_node);
-			pthread_mutex_unlock(&global_res_BST_mutex);
-			dealloc_free_resource(cur_free_res);
-		}
-		xfree(free_res);
-		xfree(query_value);
 	}
+
+	/* ret = -1 means the current partition has no free node
+	 * ret = 0 means allocation succeeded
+	 * */
+	if (ret < 0)
+		a_job_res->num_try++;
+	else { // allocation succeeded, then update the current resource BST
+		//printf("I succeeded to allocate resource, num more node "
+		//		"is:%d, all node is:%d\n", num_more_node, a_job_res->num_node);
+		free_resource *cur_free_res = unpack_free_resource(query_value);
+		pthread_mutex_lock(&global_res_BST_mutex);
+		BST *bst = BST_search_exact(&(global_res_BST->resource_bst), ctrl_id);
+		if (bst != NULL)
+			BST_delete(&(global_res_BST->resource_bst), ctrl_id, bst->num);
+		BST_insert(&(global_res_BST->resource_bst), ctrl_id, cur_free_res->num_free_node);
+		pthread_mutex_unlock(&global_res_BST_mutex);
+		dealloc_free_resource(cur_free_res);
+	}
+	xfree(free_res);
+	xfree(query_value);
 }
 
 extern job_resource* allocate_job_resource(int num_node_req)
 {
 	job_resource *a_job_res = init_job_resource();
-	//char *ctrl_name = self_name;
 	BST *bst = NULL;
 	char *candidate_ctrl = xmalloc(30);
-	//int num = -1;
 	strcpy(candidate_ctrl, self_name);
-	/*pthread_mutex_lock(&global_res_BST_mutex);
-	bst = BST_search_exact(&(global_res_BST->resource_bst), ctrl_name);
-	if (bst != NULL) {
-		strcpy(candidate_ctrl, bst->data);
-		num = bst->num;
-		BST_delete(&(global_res_BST->resource_bst), bst->data, bst->num);
-	}
-	pthread_mutex_unlock(&global_res_BST_mutex);*/
-
-	/*while (bst == NULL) {
-		usleep(10000);
-		pthread_mutex_lock(&global_res_BST_mutex);
-		bst = BST_search_best(&(global_res_BST->resource_bst), num_node_req);
-		if (bst != NULL) {
-			c_memset(candidate_ctrl, 30);
-			strcpy(candidate_ctrl, bst->data);
-			num = bst->num;
-			//printf("The data is:%s, and the number is:%d\n", bst->data, bst->num);
-			BST_delete(&(global_res_BST->resource_bst), bst->data, bst->num);
-		} else {
-			//printf("OK, that is weired!\n");
-			sleep(10);
-		}
-		pthread_mutex_unlock(&global_res_BST_mutex);
-	}*/
 
 	while (a_job_res->num_node < num_node_req) {
 		//printf("OK, keep allocating!\n");
@@ -234,24 +219,10 @@ extern job_resource* allocate_job_resource(int num_node_req)
 					num_node_req - a_job_res->num_node);
 			if (bst != NULL) {
 				strcpy(candidate_ctrl, bst->data);
-				//num = bst->num;
 				BST_delete(&(global_res_BST->resource_bst), bst->data, bst->num);
 			} else
 				strcpy(candidate_ctrl, self_name);
 			pthread_mutex_unlock(&global_res_BST_mutex);
-			/*while (bst == NULL && a_job_res->num_node < num_node_req) {
-				usleep(10000);
-				pthread_mutex_lock(&global_res_BST_mutex);
-				bst = BST_search_best(&(global_res_BST->resource_bst),
-						num_node_req - a_job_res->num_node);
-				if (bst != NULL) {
-					c_memset(candidate_ctrl, 30);
-					strcpy(candidate_ctrl, bst->data);
-					//num = bst->num;
-					BST_delete(&(global_res_BST->resource_bst), bst->data, bst->num);
-				}
-				pthread_mutex_unlock(&global_res_BST_mutex);
-			}*/
 		}
 	}
 	xfree(candidate_ctrl);
@@ -356,7 +327,6 @@ extern void release_job_resource(job_resource *a_job_res)
 			dealloc_free_resource(to_be_incre);
 		}
 	}
-	//dealloc_job_resource(a_job_res);
 }
 
 extern void dealloc_job_resource(job_resource *a_job_res)
@@ -427,11 +397,11 @@ extern free_resource* unpack_free_resource(char *str)
 		char *p[num_free_node];
 		split_str(res[1], ",", p);
 		int i;
-		for (i = 0; i < num_free_node; i++) {
+		for (i = 0; i < num_free_node; i++)
 			strcpy(a_free_resource->free_nodelist[i], p[i]);
-		}
 	}
 	free(str_copy);
+	str_copy = NULL;
 	return a_free_resource;
 }
 

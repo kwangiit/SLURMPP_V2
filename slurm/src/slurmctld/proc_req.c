@@ -2447,22 +2447,52 @@ static void _slurm_rpc_node_registration(slurm_msg_t * msg)
 			a_free_resource->num_free_node = part_size;
 			a_free_resource->free_nodelist = xmalloc_2(part_size, 30);
 			int i;
-			for (i = 0; i < part_size; i++) {
+			for (i = 0; i < part_size; i++)
 				strcpy(a_free_resource->free_nodelist[i], source[i]);
-			}
 			char *str_free_resource = pack_free_resource(a_free_resource);
 			c_zht_insert(self_name, str_free_resource);
 			dealloc_free_resource(a_free_resource);
 			xfree(str_free_resource);
+
 			num_insert_msg_local++;
+			char *expect = int_to_str(num_ctrl);
+			if (self_index == 0) {
+				c_zht_insert("number controller finished registration", 1);
+				while (c_state_change_callback(
+						"number controller finished registration", expect, 10000) != 0)
+					usleep(5000);
+			} else {
+				char *cur_value = xmalloc(10);
+				while (c_zht_lookup("number controller finished registration", cur_value) != 0)
+					usleep(5000);
+
+				int cur_value_int = str_to_int(cur_value);
+				char *next_value = int_to_str(cur_value_int + 1);
+				char *query_value = xmalloc(10);
+				while (c_zht_compare_swap("number controller finished registration",
+						cur_value, next_value, query_value) != 0) {
+					xfree(next_value);
+					c_memset(cur_value, 10);
+					strcpy(cur_value, query_value);
+					cur_value_int = str_to_int(cur_value);
+					next_value = int_to_str(cur_value_int + 1);
+					c_memset(query_value, 10);
+				}
+				xfree(cur_value);
+				xfree(next_value);
+				xfree(query_value);
+				while (c_state_change_callback(
+						"number controller finished registration", expect, 10000) != 0)
+					usleep(5000);
+			}
+			xfree(expect);
 			ready = true;
 		}
 	}
 	pthread_mutex_unlock(&regist_mutex);
 
-	if (num_insert_msg_local > 0) {
+	if (num_insert_msg_local > 0)
 		incre_zht_msg("insert", num_insert_msg_local);
-	}
 }
 
 /* _slurm_rpc_job_alloc_info - process RPC to get details on existing job */
