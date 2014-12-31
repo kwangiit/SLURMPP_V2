@@ -2457,7 +2457,7 @@ static void _slurm_rpc_node_registration(slurm_msg_t * msg)
 			num_insert_msg_local++;
 			char *expect = int_to_str(num_ctrl);
 			if (self_index == 0) {
-				c_zht_insert("number controller finished registration", 1);
+				c_zht_insert("number controller finished registration", "1");
 				while (c_state_change_callback(
 						"number controller finished registration", expect, 10000) != 0)
 					usleep(5000);

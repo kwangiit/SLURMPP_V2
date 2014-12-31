@@ -120,6 +120,7 @@ int do_allocate(char *free_res,
 		new_free_res->num_free_node = num_node_left;
 		if (num_node_left > 0)
 			new_free_res->free_nodelist = xmalloc_2(num_node_left, 30);
+		int i;
 		for (i = 0; i < num_node_left; i++)
 			strcat(new_free_res->free_nodelist[i],
 					cur_free_res->free_nodelist[i + num_node_attempt]);

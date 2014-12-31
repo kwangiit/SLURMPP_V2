@@ -138,6 +138,9 @@ static void  _set_node_alias(void);
 static int   _slurm_debug_env_val (void);
 static char *_uint16_array_to_str(int count, const uint16_t *array);
 
+static char* _int_to_str(int);
+static int _str_to_int(char*);
+static void _add_slash(char*);
 /*
  * from libvirt-0.6.2 GPL2
  *
@@ -160,8 +163,33 @@ void cfmakeraw(struct termios *attr)
 
 int srun(int ac, char **av)
 {
-	cur_job_time = xmalloc(sizeof(job_time));
-	cur_job_time->start_time = get_time_usec();
+	/* There should be at least 4 parameters:
+	 * 1st parameter: srun
+	 * 2nd parameter: num_partition
+	 * 3rd parameter: part_size
+	 * 4th parameter: config_directory_path
+	 * 5th parameter: log_file_path
+	 * ......
+	 * */
+	if (ac < 5) {
+		printf("usage: srun num_partition part_size config_directory_path "
+				"log_file_path -Nxxx -nxxx command arguments");
+		exit(1);
+	}
+	int num_part = _str_to_int(av[1]);
+	char *config_dir = av[3];
+	char *log_path = av[4];
+
+	/* Remove the 2nd, 3rd and 4th parameters to reuse
+	 * the process of parsing the arguments in srun
+	 * */
+	char **av_less = (char**)malloc(sizeof(char*) * (ac - 4));
+	av_less[0] = strdup(av[0]);
+	int i;
+	for (i = 1; i < ac - 4; i++)
+		av_less[i] = strdup(av[i + 4]);
+	ac -= 4;
+
 	int debug_level;
 	env_t *env = xmalloc(sizeof(env_t));
 	log_options_t logopt = LOG_OPTS_STDERR_ONLY;
@@ -177,57 +205,32 @@ int srun(int ac, char **av)
 	env->env = NULL;
 	env->ckpt_dir = NULL;
 
-	FILE* myfile = fopen("/users/kwangiit/slurm++/slurm++_v3/slurm/src/ZHT/src/zhtmemlist", "r");
-	int ch, number_of_lines = 0;
+	char *config_file = xmalloc(strlen(config_dir) + 30);
+	strcpy(config_file, config_dir);
+	_add_slash(config_file);
+	strcat(config_file, "slurm.");
 
-	for (;;) {
-		ch = getc(myfile);
-		if (ch == '\n')
-			++number_of_lines;
-		if (ch == EOF) {
-			++number_of_lines;
-			break;
-		}
-	}
-
-	/*do
-	{
-	    ch = fgetc(myfile);
-	    if(ch == '\n')
-	    	number_of_lines++;
-	} while (ch != EOF);*/
-
-	// last line doesn't end with a new line!
-	// but there has to be a line at least before the last line
-	//if(ch != '\n' && number_of_lines != 0)
-	 //   number_of_lines++;
-
-	fclose(myfile);
+	cur_job_time = xmalloc(sizeof(job_time));
 	cur_job_time->start_time = get_time_usec();
+
+	/* get the current configuration file */
 	srand(cur_job_time->start_time);
-	//printf("The number of line is:%d\n", number_of_lines);
-	int index = rand() % number_of_lines + 1;
-	char *conf_file_path = xmalloc(100);
-	strcat(conf_file_path, "/users/kwangiit/slurm++/slurm++_v3/config/slurm.");
-
+	int index = rand() % num_part + 1;
 	printf("My index is:%d\n", index);
-	char *index_str = xmalloc(20);
-	sprintf(index_str, "%d", index);
-	strcat(conf_file_path, index_str);
+	char *index_str = _int_to_str(index);
+	strcat(config_file, index_str);
 	xfree(index_str);
-	strcat(conf_file_path, ".");
-	char *num_line_str = xmalloc(20);
-	sprintf(num_line_str, "%d", number_of_lines);
-	strcat(conf_file_path, num_line_str);
-	xfree(num_line_str);
-	strcat(conf_file_path, ".50.conf");
-	//slurm_conf_init(NULL);
-	//memset(conf_file_path, '\0', 100);
-	//strcpy(conf_file_path, "/usr/local/etc/slurm.conf");
-	printf("The config file is:%s\n", conf_file_path);
+	strcat(config_file, ".");
+	strcat(config_file, av[1]);
+	strcat(config_file, ".");
+	strcat(config_file, av[2]);
+	strcat(config_file, ".conf");
+	printf("The config file is:%s\n", config_file);
+
+	/* start to process this job */
 	cur_job_time->start_time = get_time_usec();
-	slurm_conf_init(conf_file_path);
-	xfree(conf_file_path);
+	slurm_conf_init(config_file);
+	xfree(config_file);
 	debug_level = _slurm_debug_env_val();
 	logopt.stderr_level += debug_level;
 	log_init(xbasename(av[0]), logopt, 0, NULL);
@@ -239,7 +242,7 @@ int srun(int ac, char **av)
 	if (switch_init() != SLURM_SUCCESS )
 		fatal("failed to initialize switch plugin");
 
-	init_srun(ac, av, &logopt, debug_level, 1);
+	init_srun(ac, av_less, &logopt, debug_level, 1);
 	create_srun_job(&job, &got_alloc, 0, 1);
 
 	/*
@@ -326,12 +329,14 @@ relaunch:
 	fini_srun(job, got_alloc, &global_rc, 0);
 	cur_job_time->end_time = get_time_usec();
 
-	char *srun_job_path = xmalloc(100);
-	strcat(srun_job_path, "/home/kwang/Documents/summer_lanl_2014/output/job_time/srun_job_time_");
+	/* To record the job time stamps */
+	char *srun_job_path = xmalloc(strlen(log_path) + 40);
+	strcpy(srun_job_path, log_path);
+	_add_slash(srun_job_path);
+	strcat(srun_job_path, "srun_job_time_");
 	char *str_job_id = xmalloc(20);
 	sprintf(str_job_id, "%u", job->jobid);
 	strcat(srun_job_path, str_job_id);
-	//printf("I am logging for job:%u\n", str_job_id);
 	xfree(str_job_id);
 
 	FILE *fp = fopen(srun_job_path, "w");
@@ -352,19 +357,12 @@ relaunch:
 	fflush(fp);
 	fclose(fp);
 	
-	//printf("%u %ld %ld %ld %ld %ld %ld %ld %ld\n",
-        //                job->jobid,
-        //                cur_job_time->start_time,
-        //                cur_job_time->alloc_time,
-        //                cur_job_time->alloc_ret_time,
-        //                cur_job_time->launch_time,
-        //                cur_job_time->launch_ret_time,
-        //                cur_job_time->fin_notify_time,
-        //                cur_job_time->fin_notify_ret_time,
-        //                cur_job_time->end_time);
-
 	xfree(srun_job_path);
 	xfree(cur_job_time);
+
+	for (i = 0; i < ac; i++)
+		free(av_less[i]);
+	free(av_less);
 	return (int)global_rc;
 }
 
@@ -476,4 +474,20 @@ static void _pty_restore(void)
 	/* STDIN is probably closed by now */
 	if (tcsetattr(STDOUT_FILENO, TCSANOW, &termdefaults) < 0)
 		fprintf(stderr, "tcsetattr: %s\n", strerror(errno));
+}
+
+static char* _int_to_str(int num) {
+	char *str = xmalloc(20);
+	sprintf(str, "%d", num);
+	return str;
+}
+static int _str_to_int(char* str) {
+	char **end = NULL;
+	int num = (int) (strtol(str, end, 10));
+	return num;
+}
+
+static void _add_slash(char* str) {
+	if (str[strlen(str) - 1] != '/')
+		strcat(str, "/");
 }

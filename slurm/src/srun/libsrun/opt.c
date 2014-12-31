@@ -1654,7 +1654,6 @@ static void _opt_args(int argc, char **argv)
 {
 	int i, command_pos = 0, command_args = 0;
 	char **rest = NULL;
-
 	_set_options(argc, argv);
 
 	if ((opt.pn_min_memory > -1) && (opt.mem_per_cpu > -1)) {
@@ -1734,7 +1733,7 @@ static void _opt_args(int argc, char **argv)
 	opt.argc = 0;
 	if (optind < argc) {
 		rest = argv + optind;
-		while (rest[opt.argc] != NULL)
+		while (rest[opt.argc] != NULL && optind + opt.argc < argc)
 			opt.argc++;
 	}
 
