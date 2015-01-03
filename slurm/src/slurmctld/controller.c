@@ -2600,6 +2600,7 @@ static void* _record_zht_msg_thread(void *arg)
 	strcpy(record_path, log_file_path);
 	if (log_file_path[strlen(log_file_path) - 1] != '/')
 		strcat(record_path, "/");
+	strcat(record_path, "msg_record_");
 	strcat(record_path, str_self_index);
 	FILE *fp = fopen(record_path, "w+");
 	xfree(record_path);
